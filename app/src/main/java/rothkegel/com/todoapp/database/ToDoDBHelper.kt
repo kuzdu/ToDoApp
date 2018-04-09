@@ -11,7 +11,7 @@ import rothkegel.com.todoapp.models.ToDo
 import java.util.*
 
 
-class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(SQL_CREATE_ENTRIES)
     }
@@ -43,8 +43,7 @@ class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, todo.dueDate)
 
         // Insert the new row, returning the primary key value of the new row
-        val newRowId = db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
-
+        db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
         return true
     }
 
@@ -58,6 +57,7 @@ class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         return true
     }
 
+    /** TODO: warum sollte hier ein Array zurückgegeben werden? Das ist total bescheuert */
     fun readToDo(id: String): ArrayList<ToDo> {
         val todos = ArrayList<ToDo>()
         val db = writableDatabase
@@ -70,32 +70,13 @@ class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
             return ArrayList()
         }
 
-        var id: String
-        var name: String
-        var description: String
-        var done: Boolean
-        var favorite: Boolean
-        var dueDate: String
+        if (cursor == null) {
+            throw NullPointerException("Expression 'cursor' must not be null")
+        }
 
-        if (cursor!!.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast) {
-                id = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
-                name = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
-                description = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DESCRIPTION))
-                done = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
-                favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
-                dueDate = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
-
-
-                val element = ToDo()
-                element.id = id
-                element.name = name
-                element.description = description
-                element.done = done
-                element.favorite = favorite
-                element.dueDate = dueDate
-
-                todos.add(element)
+                todos.add(createToDoElement(cursor))
                 cursor.moveToNext()
             }
         }
@@ -113,38 +94,41 @@ class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
             return ArrayList()
         }
 
-        var id: String
-        var name: String
-        var description: String
-        var done: Boolean
-        var favorite: Boolean
-        var dueDate: String
+        if (cursor == null) {
+            throw NullPointerException("Expression 'cursor' must not be null")
+        }
 
-        if (cursor!!.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast) {
-                id = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
-                name = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
-                description = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DESCRIPTION))
-                done = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
-                favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
-                dueDate = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
-
-
-                val element = ToDo()
-                element.id = id
-                element.name = name
-                element.description = description
-                element.done = done
-                element.favorite = favorite
-                element.dueDate = dueDate
-
-                todos.add(element)
+                todos.add(createToDoElement(cursor))
                 cursor.moveToNext()
             }
         }
         return todos
     }
 
+    private fun createToDoElement(cursor: Cursor): ToDo {
+
+        val id: String = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
+        val name: String = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
+        val description: String = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DESCRIPTION))
+        val done: Boolean = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
+        val favorite: Boolean = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
+        val dueDate: String = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
+
+
+        val toDo = ToDo()
+        toDo.id = id
+        toDo.name = name
+        toDo.description = description
+        toDo.done = done
+        toDo.favorite = favorite
+        toDo.dueDate = dueDate
+
+        return toDo
+    }
+
+    //TODO: COLUMN_ID must be auto increment
     companion object {
         // If you change the database schema, you must increment the database version.
         val DATABASE_VERSION = 1
@@ -154,10 +138,10 @@ class UsersDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                 "CREATE TABLE " + DBContract.TodoEntry.TABLE_NAME + " (" +
                         DBContract.TodoEntry.COLUMN_ID + " TEXT PRIMARY KEY," +
                         DBContract.TodoEntry.COLUMN_NAME + " TEXT," +
-                        DBContract.TodoEntry.COLUMN_DESCRIPTION + " TEXT)" +
-                        DBContract.TodoEntry.COLUMN_DUE_DATE + " DATE)" +
-                        DBContract.TodoEntry.COLUMN_FAVORITE + " BOOL)" +
-                        DBContract.TodoEntry.COLUMN_DONE + " BOOL)"
+                        DBContract.TodoEntry.COLUMN_DESCRIPTION + " TEXT" +
+                        DBContract.TodoEntry.COLUMN_DUE_DATE + " TEXT" +
+                        DBContract.TodoEntry.COLUMN_FAVORITE + " INTEGER" +
+                        DBContract.TodoEntry.COLUMN_DONE + " INTEGER)"
 
         private val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + DBContract.TodoEntry.TABLE_NAME
     }

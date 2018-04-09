@@ -7,6 +7,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
+import rothkegel.com.todoapp.database.ToDoDBHelper
+import rothkegel.com.todoapp.models.ToDo
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -21,4 +23,29 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getTargetContext()
         assertEquals("rothkegel.com.todoapp", appContext.packageName)
     }
+
+    @Test
+    fun addToDo() {
+
+        val appContext = InstrumentationRegistry.getTargetContext()
+
+        val toDoDBHelper = ToDoDBHelper(appContext)
+
+        val todo = ToDo()
+        todo.name = "Name"
+        todo.description = "This is a description"
+        todo.dueDate = "Date"
+        todo.favorite = true
+        todo.done = true
+
+        toDoDBHelper.insertTodo(todo)
+
+
+        val todos = toDoDBHelper.readAllTodos()
+
+
+        assertEquals("Name",todos.first().name)
+
+    }
+
 }
