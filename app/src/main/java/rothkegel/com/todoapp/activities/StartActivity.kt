@@ -2,6 +2,7 @@ package rothkegel.com.todoapp.activities
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.database.ToDoDBHelper
@@ -19,20 +20,21 @@ class StartActivity : AppCompatActivity() {
 
 
         val todo = ToDo()
-        todo.id = "ID1"
         todo.name = "Name"
         todo.description = "This is a description"
         todo.dueDate = "Date"
         todo.favorite = true
         todo.done = true
-
         toDoDBHelper.insertTodo(todo)
 
 
         val todos = toDoDBHelper.readAllTodos()
+        print(todos.first().toString())
 
+        for (todo in todos) {
+            Log.d("OUTPUT", todo.toString())
+        }
 
-        print(todos.first().name)
 
     }
 }
