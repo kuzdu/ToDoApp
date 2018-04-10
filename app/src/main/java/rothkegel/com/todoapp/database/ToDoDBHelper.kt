@@ -29,8 +29,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
 
     @Throws(SQLiteConstraintException::class)
-    fun insertTodo(todo: ToDo): Boolean {
-        // Gets the data repository in write mode
+    fun insertTodo(todo: ToDo): Long {
         val db = writableDatabase
 
         val values = ContentValues()
@@ -40,17 +39,31 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         values.put(DBContract.TodoEntry.COLUMN_DONE, todo.done)
         values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, todo.dueDate)
 
-        db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
-        return true
+        return db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
     }
 
     @Throws(SQLiteConstraintException::class)
-    fun deleteById(id: Int): Boolean {
+    fun deleteById(id: Long): Boolean {
         val db = writableDatabase
-        return db.delete(DBContract.TodoEntry.TABLE_NAME, DBContract.TodoEntry.COLUMN_ID + "=" + id, null) > 0;
-     }
+        return db.delete(DBContract.TodoEntry.TABLE_NAME, DBContract.TodoEntry.COLUMN_ID + "=" + id, null) > 0
+    }
 
-    fun readToDoById(id: Int): ToDo? {
+
+    fun changeToDo(changedToDo: ToDo): Boolean {
+
+        val db = writableDatabase
+        val values = ContentValues()
+
+        values.put(DBContract.TodoEntry.COLUMN_NAME, changedToDo.name)
+        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, changedToDo.description)
+        values.put(DBContract.TodoEntry.COLUMN_FAVORITE, changedToDo.favorite)
+        values.put(DBContract.TodoEntry.COLUMN_DONE, changedToDo.done)
+        values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, changedToDo.dueDate)
+
+        return db.update(DBContract.TodoEntry.TABLE_NAME, values, DBContract.TodoEntry.COLUMN_ID + "=" + changedToDo.id, null) > 0
+    }
+
+    fun readToDoById(id: Long): ToDo? {
 
         val db = writableDatabase
         val cursor: Cursor?
@@ -98,7 +111,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     private fun createToDoElement(cursor: Cursor): ToDo {
 
-        val id = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
+        val id = cursor.getLong(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
         val name = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
         val description = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DESCRIPTION))
         val done = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
