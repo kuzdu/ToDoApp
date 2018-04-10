@@ -2,7 +2,7 @@ package rothkegel.com.todoapp.models
 
 
 class ToDo {
-    var id:Int? = null
+    var id = -1
     var name = ""
     var description = ""
     var favorite = false

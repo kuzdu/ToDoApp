@@ -33,41 +33,32 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         // Gets the data repository in write mode
         val db = writableDatabase
 
-        // Create a new map of values, where column names are the keys
         val values = ContentValues()
-     //   values.put(DBContract.TodoEntry.COLUMN_ID, todo.id)
         values.put(DBContract.TodoEntry.COLUMN_NAME, todo.name)
         values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, todo.description)
         values.put(DBContract.TodoEntry.COLUMN_FAVORITE, todo.favorite)
         values.put(DBContract.TodoEntry.COLUMN_DONE, todo.done)
         values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, todo.dueDate)
 
-        // Insert the new row, returning the primary key value of the new row
         db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
         return true
     }
 
     @Throws(SQLiteConstraintException::class)
-    fun deleteToDo(id: String): Boolean {
+    fun deleteById(id: Int): Boolean {
         val db = writableDatabase
-        val selection = DBContract.TodoEntry.COLUMN_ID + " LIKE ?"
-        val selectionArgs = arrayOf(id)
-        db.delete(DBContract.TodoEntry.TABLE_NAME, selection, selectionArgs)
+        return db.delete(DBContract.TodoEntry.TABLE_NAME, DBContract.TodoEntry.COLUMN_ID + "=" + id, null) > 0;
+     }
 
-        return true
-    }
+    fun readToDoById(id: Int): ToDo? {
 
-    /** TODO: warum sollte hier ein Array zurückgegeben werden? Das ist total bescheuert */
-    fun readToDo(id: String): ArrayList<ToDo> {
-        val toDos = ArrayList<ToDo>()
         val db = writableDatabase
-        var cursor: Cursor? = null
+        val cursor: Cursor?
         try {
             cursor = db.rawQuery("SELECT * FROM " + DBContract.TodoEntry.TABLE_NAME + " WHERE " + DBContract.TodoEntry.COLUMN_ID + "='" + id + "'", null)
         } catch (e: SQLiteException) {
-            // if table not yet present, create it
             db.execSQL(SQL_CREATE_ENTRIES)
-            return ArrayList()
+            return null
         }
 
         if (cursor == null) {
@@ -75,18 +66,16 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }
 
         if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast) {
-                toDos.add(createToDoElement(cursor))
-                cursor.moveToNext()
-            }
+            return createToDoElement(cursor)
         }
-        return toDos
+
+        return null
     }
 
     fun readAllTodos(): ArrayList<ToDo> {
         val toDos = ArrayList<ToDo>()
         val db = writableDatabase
-        var cursor: Cursor?
+        val cursor: Cursor?
         try {
             cursor = db.rawQuery("SELECT * FROM " + DBContract.TodoEntry.TABLE_NAME, null)
         } catch (e: SQLiteException) {
@@ -115,7 +104,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val done = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
         val favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
         val dueDate = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
-        
+
         val toDo = ToDo()
         toDo.id = id
         toDo.name = name
@@ -127,10 +116,9 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return toDo
     }
 
-    //TODO: COLUMN_ID must be auto increment
     companion object {
         // If you change the database schema, you must increment the database version.
-        const val DATABASE_VERSION = 8
+        const val DATABASE_VERSION = 11
         const val DATABASE_NAME = "ToDos.db"
 
         private const val SQL_CREATE_ENTRIES =
