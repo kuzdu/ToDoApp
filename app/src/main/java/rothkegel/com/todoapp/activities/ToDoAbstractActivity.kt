@@ -1,25 +1,23 @@
 package rothkegel.com.todoapp.activities
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
+import android.support.v7.app.AppCompatActivity
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.database.ToDoDBHelper
-import rothkegel.com.todoapp.models.ToDo
 
-class StartActivity : AppCompatActivity() {
+open class ToDoAbstractActivity : AppCompatActivity() {
 
     lateinit var toDoDBHelper: ToDoDBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_start)
+
         toDoDBHelper = ToDoDBHelper(this)
 
 
 
-        val todo = ToDo()
+        /*
+        val todo = ToDoOld()
         todo.name = "Name"
         todo.description = "This is a description"
         todo.dueDate = "Date"
@@ -33,8 +31,7 @@ class StartActivity : AppCompatActivity() {
 
         for (todo in todos) {
             Log.d("OUTPUT", todo.toString())
-        }
-
+        }*/
 
     }
 }

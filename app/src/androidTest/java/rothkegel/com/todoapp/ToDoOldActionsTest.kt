@@ -8,11 +8,11 @@ import org.junit.runner.RunWith
 
 import org.junit.Assert.*
 import rothkegel.com.todoapp.database.ToDoDBHelper
-import rothkegel.com.todoapp.models.ToDo
+import rothkegel.com.todoapp.models.ToDoOld
 
 
 @RunWith(AndroidJUnit4::class)
-class ToDoActionsTest {
+class ToDoOldActionsTest {
     @Test
     fun useAppContext() {
         // Context of the app under test.
@@ -64,7 +64,7 @@ class ToDoActionsTest {
         assertEquals(true, milkToDoFromDataBase?.favorite)
         assertEquals(true, milkToDoFromDataBase?.done)
 
-        val changeToDo = ToDo()
+        val changeToDo = ToDoOld()
         changeToDo.id = milkToDoFromDataBase!!.id
         changeToDo.name = "Banana"
         changeToDo.description = "From Store"
@@ -99,8 +99,8 @@ class ToDoActionsTest {
     }
 
     /** date format yyyy-MM-dd HH:mm:ss */
-    private fun generateToDo(name: String, description: String, dueDate: String, favorite: Boolean, done: Boolean): ToDo {
-        val toDo = ToDo()
+    private fun generateToDo(name: String, description: String, dueDate: String, favorite: Boolean, done: Boolean): ToDoOld {
+        val toDo = ToDoOld()
         toDo.name = name
         toDo.description = description
         toDo.dueDate = dueDate

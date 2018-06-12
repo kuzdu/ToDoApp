@@ -1,7 +1,7 @@
 package rothkegel.com.todoapp.models
 
 
-class ToDo {
+class ToDoOld {
     var id:Long = -1
     var name = ""
     var description = ""
@@ -10,6 +10,6 @@ class ToDo {
     var dueDate = ""
 
     override fun toString(): String {
-        return "ToDo(id=$id, name='$name', description='$description', favorite=$favorite, done=$done, dueDate='$dueDate')"
+        return "ToDoOld(id=$id, name='$name', description='$description', favorite=$favorite, done=$done, dueDate='$dueDate')"
     }
 }

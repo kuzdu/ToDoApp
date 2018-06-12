@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
-import rothkegel.com.todoapp.models.ToDo
+import rothkegel.com.todoapp.models.ToDoOld
 import java.util.*
 
 
@@ -29,7 +29,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
 
     @Throws(SQLiteConstraintException::class)
-    fun insertTodo(todo: ToDo): Long {
+    fun insertTodo(todo: ToDoOld): Long {
         val db = writableDatabase
 
         val values = ContentValues()
@@ -49,21 +49,21 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
 
-    fun changeToDo(changedToDo: ToDo): Boolean {
+    fun changeToDo(changedToDoOld: ToDoOld): Boolean {
 
         val db = writableDatabase
         val values = ContentValues()
 
-        values.put(DBContract.TodoEntry.COLUMN_NAME, changedToDo.name)
-        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, changedToDo.description)
-        values.put(DBContract.TodoEntry.COLUMN_FAVORITE, changedToDo.favorite)
-        values.put(DBContract.TodoEntry.COLUMN_DONE, changedToDo.done)
-        values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, changedToDo.dueDate)
+        values.put(DBContract.TodoEntry.COLUMN_NAME, changedToDoOld.name)
+        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, changedToDoOld.description)
+        values.put(DBContract.TodoEntry.COLUMN_FAVORITE, changedToDoOld.favorite)
+        values.put(DBContract.TodoEntry.COLUMN_DONE, changedToDoOld.done)
+        values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, changedToDoOld.dueDate)
 
-        return db.update(DBContract.TodoEntry.TABLE_NAME, values, DBContract.TodoEntry.COLUMN_ID + "=" + changedToDo.id, null) > 0
+        return db.update(DBContract.TodoEntry.TABLE_NAME, values, DBContract.TodoEntry.COLUMN_ID + "=" + changedToDoOld.id, null) > 0
     }
 
-    fun readToDoById(id: Long): ToDo? {
+    fun readToDoById(id: Long): ToDoOld? {
 
         val db = writableDatabase
         val cursor: Cursor?
@@ -85,8 +85,8 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return null
     }
 
-    fun readAllTodos(): ArrayList<ToDo> {
-        val toDos = ArrayList<ToDo>()
+    fun readAllTodos(): ArrayList<ToDoOld> {
+        val toDos = ArrayList<ToDoOld>()
         val db = writableDatabase
         val cursor: Cursor?
         try {
@@ -109,7 +109,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return toDos
     }
 
-    private fun createToDoElement(cursor: Cursor): ToDo {
+    private fun createToDoElement(cursor: Cursor): ToDoOld {
 
         val id = cursor.getLong(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
         val name = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
@@ -118,7 +118,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
         val dueDate = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
 
-        val toDo = ToDo()
+        val toDo = ToDoOld()
         toDo.id = id
         toDo.name = name
         toDo.description = description
@@ -132,7 +132,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     companion object {
         // If you change the database schema, you must increment the database version.
         const val DATABASE_VERSION = 11
-        const val DATABASE_NAME = "ToDos.db"
+        const val DATABASE_NAME = "ToDo.db"
 
         private const val SQL_CREATE_ENTRIES =
                 "CREATE TABLE " + DBContract.TodoEntry.TABLE_NAME + " (" +
