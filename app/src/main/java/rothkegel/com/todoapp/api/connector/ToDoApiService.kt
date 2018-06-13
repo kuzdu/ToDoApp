@@ -25,8 +25,12 @@ interface ToDoApiService {
     @DELETE("todos")
     fun removeAllToDos(): Observable<Response<Boolean>>
 
-    @DELETE("todos")
+    @DELETE("todos/{id}")
     fun removeToDo(@Path("id") id: Int): Observable<Response<Boolean>>
+
+    @Headers("Content-Type: application/json")
+    @POST("todos")
+    fun addToDo(@Body toDo: ToDo): Observable<Response<ToDo>>
 
     /**
      * Companion object to create the ToDoApiService

@@ -64,6 +64,10 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         toast("Removed: $removed")
     }
 
+    fun onToDoAdded(toDo: ToDo?) {
+        toast("Added ${toDo?.name}")
+    }
+
 
     fun fetchToDos() {
         ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
@@ -111,6 +115,16 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     onToDoRemoved(result.body())
+                }, { error ->
+                    onError(error)
+                })
+    }
+
+    fun addToDo(toDo: ToDo) {
+        ToDoServiceClient.addToDo(toDo).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onToDoAdded(result.body())
                 }, { error ->
                     onError(error)
                 })

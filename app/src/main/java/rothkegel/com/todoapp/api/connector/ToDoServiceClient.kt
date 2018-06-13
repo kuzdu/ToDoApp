@@ -29,4 +29,8 @@ object ToDoServiceClient {
     fun removeToDo(id: Int): Observable<Response<Boolean>> {
         return apiService.removeToDo(id)
     }
+
+    fun addToDo(toDo: ToDo): Observable<Response<ToDo>> {
+        return apiService.addToDo(toDo)
+    }
 }
