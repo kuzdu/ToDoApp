@@ -2,7 +2,11 @@ package rothkegel.com.todoapp.activities
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import rothkegel.com.todoapp.R
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.toast
+import rothkegel.com.todoapp.api.connector.ToDoServiceClient
+import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.database.ToDoDBHelper
 
 open class ToDoAbstractActivity : AppCompatActivity() {
@@ -13,7 +17,6 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         toDoDBHelper = ToDoDBHelper(this)
-
 
 
         /*
@@ -33,5 +36,83 @@ open class ToDoAbstractActivity : AppCompatActivity() {
             Log.d("OUTPUT", todo.toString())
         }*/
 
+    }
+
+
+    fun onToDosFetched(todos: Array<ToDo>?) {
+        toast("Got ${todos?.size} ToDos")
+    }
+
+    fun onLoggedIn(loggedIn: Boolean?) {
+        toast("Logged in $loggedIn")
+    }
+
+    fun onSingleTodoFetched(toDo: ToDo?) {
+        toast("ToDo Name ${toDo?.name.toString()}")
+    }
+
+    fun onError(error: Throwable) {
+        toast(error.localizedMessage)
+//        error.printStackTrace()
+    }
+
+    fun onDeletedAllToDos(removed: Boolean?) {
+        toast("Deleted: $removed")
+    }
+
+    fun onToDoRemoved(removed: Boolean?) {
+        toast("Removed: $removed")
+    }
+
+
+    fun fetchToDos() {
+        ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onToDosFetched(result.body())
+                }, { error ->
+                    onError(error)
+                })
+    }
+
+    fun fetchToDo(id: Int) {
+        ToDoServiceClient.fetchToDo(id).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onSingleTodoFetched(result.body())
+                }, { error ->
+                    onError(error)
+                })
+    }
+
+    fun getLogin() {
+        ToDoServiceClient.loginUser("s@bht.de", "000000").observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onLoggedIn(result.body())
+                }, { error ->
+                    onError(error)
+                })
+    }
+
+    fun deleteAllToDos() {
+        ToDoServiceClient.removeAllToDos().observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onDeletedAllToDos(result.body())
+                }, { error ->
+                    onError(error)
+                })
+
+    }
+
+    fun removeToDo(id: Int) {
+        ToDoServiceClient.removeToDo(id).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onToDoRemoved(result.body())
+                }, { error ->
+                    onError(error)
+                })
     }
 }

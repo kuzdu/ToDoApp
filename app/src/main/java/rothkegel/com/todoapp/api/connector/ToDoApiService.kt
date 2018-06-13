@@ -16,13 +16,17 @@ interface ToDoApiService {
     @PUT("users/auth")
     fun putLogin(@Body user: User): Observable<Response<Boolean>>
 
-    /*  fun putLogin(@Body("email") email: String,
-                   @Body("pwd") pwd: String): Observable<Response<User>>
-  */
+    @GET("todos/{id}")
+    fun fetchToDo(@Path("id") id: Int): Observable<Response<ToDo>>
 
     @GET("todos")
-    fun getToDos(): Observable<Response<Array<ToDo>>>
+    fun fetchToDos(): Observable<Response<Array<ToDo>>>
 
+    @DELETE("todos")
+    fun removeAllToDos(): Observable<Response<Boolean>>
+
+    @DELETE("todos")
+    fun removeToDo(@Path("id") id: Int): Observable<Response<Boolean>>
 
     /**
      * Companion object to create the ToDoApiService
