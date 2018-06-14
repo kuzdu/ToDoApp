@@ -33,4 +33,8 @@ object ToDoServiceClient {
     fun addToDo(toDo: ToDo): Observable<Response<ToDo>> {
         return apiService.addToDo(toDo)
     }
+
+    fun updateToDo(toDo: ToDo, id: Int): Observable<Response<ToDo>> {
+        return apiService.putToDo(toDo, id)
+    }
 }

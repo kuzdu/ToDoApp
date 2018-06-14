@@ -30,23 +30,33 @@ class LoginActivity : ToDoAbstractActivity() {
 
 
         //ggf. das ausprobieren https://discuss.kotlinlang.org/t/how-to-append-a-list-to-an-immutable-list-of-lists/38
-        val contacts = arrayOf("Michael","Jonas","Lara")
+        val contacts = arrayOf("Michael", "Jonas", "Lara")
 
         val location = Location("Home", LatLng(50.837, 8.18))
 
-        //val toDo = ToDo(1234, "MyName", "This is a description", 0, false, true, contacts, location)
-        val toDo = ToDo()
-        toDo.id = 1234123
-        toDo.name = "Test"
-        toDo.description = "This is a descirption"
-        toDo.done = true
-        toDo.expiry = 0
-        toDo.favourite = true
-        toDo.contacts = contacts
-        toDo.location = location
-        addToDo(toDo)
+        val toDo = ToDo(1234, "MyName", "This is a description", 0, false, true, contacts, location)
 
+
+        addToDo(toDo)
     }
 
+
+    override fun onToDoAdded(toDo: ToDo?) {
+        super.onToDoAdded(toDo)
+
+        val updatedToDo = ToDo()
+        val updatedLocation = Location("New Home", LatLng(8.837, 50.18))
+        val updatedContacts = arrayOf("Frank", "Andy", "Tim")
+
+        updatedToDo.id = 1234
+        updatedToDo.name = "Testname"
+        updatedToDo.description = "New Updated Description"
+        updatedToDo.done = false
+        updatedToDo.expiry = 1
+        updatedToDo.favourite = false
+        updatedToDo.contacts = updatedContacts
+        updatedToDo.location = updatedLocation
+        updateToDo(updatedToDo, 1234)
+    }
 
 }

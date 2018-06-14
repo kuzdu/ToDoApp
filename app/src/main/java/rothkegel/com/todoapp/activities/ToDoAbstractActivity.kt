@@ -38,6 +38,10 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     }
 
+    //listener
+    fun onToDoUpdated(toDo: ToDo?) {
+        toast("Updated ${toDo.toString()}")
+    }
 
     fun onToDosFetched(todos: Array<ToDo>?) {
         toast("Got ${todos?.size} ToDos")
@@ -64,11 +68,12 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         toast("Removed: $removed")
     }
 
-    fun onToDoAdded(toDo: ToDo?) {
+    open fun onToDoAdded(toDo: ToDo?) {
         toast("Added ${toDo?.name}")
     }
 
 
+    //request
     fun fetchToDos() {
         ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -125,6 +130,16 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     onToDoAdded(result.body())
+                }, { error ->
+                    onError(error)
+                })
+    }
+
+    fun updateToDo(toDo: ToDo, id: Int) {
+        ToDoServiceClient.updateToDo(toDo, id).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    onToDoUpdated(result.body())
                 }, { error ->
                     onError(error)
                 })

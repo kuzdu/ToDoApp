@@ -13,6 +13,10 @@ import rothkegel.com.todoapp.api.connector.utils.User
 interface ToDoApiService {
 
     @Headers("Content-Type: application/json")
+    @PUT("todos/{id}")
+    fun putToDo(@Body toDo: ToDo,@Path("id") id: Int): Observable<Response<ToDo>>
+
+    @Headers("Content-Type: application/json")
     @PUT("users/auth")
     fun putLogin(@Body user: User): Observable<Response<Boolean>>
 
@@ -31,6 +35,8 @@ interface ToDoApiService {
     @Headers("Content-Type: application/json")
     @POST("todos")
     fun addToDo(@Body toDo: ToDo): Observable<Response<ToDo>>
+
+
 
     /**
      * Companion object to create the ToDoApiService
