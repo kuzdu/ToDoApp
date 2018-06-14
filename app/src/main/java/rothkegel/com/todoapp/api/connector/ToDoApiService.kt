@@ -7,7 +7,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import rothkegel.com.todoapp.api.connector.utils.ToDo
-import rothkegel.com.todoapp.api.connector.utils.ToDoHolder
 import rothkegel.com.todoapp.api.connector.utils.User
 
 interface ToDoApiService {

@@ -39,11 +39,11 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     //listener
-    fun onToDoUpdated(toDo: ToDo?) {
+    open fun onToDoUpdated(toDo: ToDo?) {
         toast("Updated ${toDo.toString()}")
     }
 
-    fun onToDosFetched(todos: Array<ToDo>?) {
+    open fun onToDosFetched(todos: Array<ToDo>?) {
         toast("Got ${todos?.size} ToDos")
     }
 
