@@ -49,25 +49,9 @@ class LoginActivity : ToDoAbstractActivity() {
 
 //        fetchToDos()
 
-        val contacts = arrayOf("Michael", "Jonas", "Lara")
-        val location = Location("Home", LatLng(50.837, 8.18))
-        val toDo1 = ToDo(1, "A", "1", 999, false, true, contacts, location)
-        val toDo2 = ToDo(2, "B", "2", 5, true, false, contacts, location)
-        val toDo3 = ToDo(3, "C", "3", 10000, true, true, contacts, location)
-        val toDo4 = ToDo(4, "D", "4", 1000, false, false, contacts, location)
-        val toDo5 = ToDo(5, "E", "5", 8000, false, false, contacts, location)
-
-/*
-    erwartet Reihenfolge
-    3,2,1,5,4
 
 
- */
 
-
-        var toDos = arrayOf(toDo1, toDo2, toDo3, toDo4, toDo5)
-
-        val allSorted = SortTool.sortByDone(toDos, false, false)
 
         toast("Nice")
     }
@@ -79,8 +63,6 @@ class LoginActivity : ToDoAbstractActivity() {
             toast("Todos is null")
             return
         }
-
-        val allSorted = SortTool.sortByDone(toDos, false, false)
 
 
         toast("Sorted")
