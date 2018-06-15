@@ -49,24 +49,23 @@ class LoginActivity : ToDoAbstractActivity() {
 
 //        fetchToDos()
 
+//06/27/2013 @ 1:31pm
+       // DateTool.getDateTime(1372339860)
 
 
+        //format dd/MM/yyyy HH:mm:ss
+        val timestamp = DateTool.convertUnixtimeToDate("27/06/2013 13:31:00")
 
-
-        toast("Nice")
+        val timeString = DateTool.getDateTime(timestamp)
+        toast(timeString)
     }
+
+    /*
 
     override fun onToDosFetched(toDos: Array<ToDo>?) {
         super.onToDosFetched(toDos)
 
-        if (toDos == null) {
-            toast("Todos is null")
-            return
-        }
-
-
-        toast("Sorted")
-    }
+    }*/
 
     /* override fun onToDoAdded(toDo: ToDo?) {
          super.onToDoAdded(toDo)
