@@ -1,23 +1,16 @@
 package rothkegel.com.todoapp.activities
 
+import android.content.Intent
 import android.os.Bundle
-import rothkegel.com.todoapp.R
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Patterns
+import android.view.View
 import kotlinx.android.synthetic.main.login_activity.*
 import org.jetbrains.anko.toast
+import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.User
-import android.content.Intent
-import android.opengl.Visibility
-import android.view.View
-
-
-/*
-    Next Steps:
-    Endgültige UI bauen
- */
 
 class LoginActivity : ToDoAbstractActivity() {
 
@@ -45,6 +38,12 @@ class LoginActivity : ToDoAbstractActivity() {
             toast(getString(R.string.error_empty_password_message))
             return
         }
+
+        if (login_password.text.length != 6) {
+            toast(getString(R.string.error_wrong_password_length_message))
+            return
+        }
+
         if (isInvalidMail()) {
             showError(getString(R.string.error_invalid_mail_message), true)
             return
@@ -111,11 +110,11 @@ class LoginActivity : ToDoAbstractActivity() {
 
     private fun showLoading(loading: Boolean) {
         if (loading) {
+            login_progress_bar.visibility = View.VISIBLE
             login_action.visibility = View.GONE
         } else {
+            login_progress_bar.visibility = View.GONE
             login_action.visibility = View.VISIBLE
         }
     }
-
-
 }

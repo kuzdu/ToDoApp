@@ -53,6 +53,13 @@
         android:text="" />
 
 
+    <ProgressBar
+        android:id="@+id/login_progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
 
     <Button
         android:id="@+id/login_action"
