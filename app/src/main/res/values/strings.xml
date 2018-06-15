@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">ToDoApp</string>
+    <string name="login_welcome_message">Hallo, bitte melde dich an, um die ToDo-App zu nutzen.</string>
+    <string name="login_email">E-Mail-Adresse</string>
+    <string name="login_password">Passwort</string>
+    <string name="login_action">Login</string>
+    <string name="error_invalid_mail_message">Die E-Mail-Adresse ist nicht gültig.</string>
+    <string name="error_empty_mail_message">Gib eine E-Mail-Adresse ein, um dich anzumelden.</string>
+    <string name="error_empty_password_message">Gib ein Passwort ein, um dich anzumelden.</string>
+    <string name="error_wrong_credentials_message">Falsche Zugangsdaten.</string>
 </resources>

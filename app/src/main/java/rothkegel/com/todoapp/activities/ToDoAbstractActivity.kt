@@ -7,6 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.toast
 import rothkegel.com.todoapp.api.connector.ToDoServiceClient
 import rothkegel.com.todoapp.api.connector.utils.ToDo
+import rothkegel.com.todoapp.api.connector.utils.User
 import rothkegel.com.todoapp.database.ToDoDBHelper
 
 open class ToDoAbstractActivity : AppCompatActivity() {
@@ -35,7 +36,34 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         for (todo in todos) {
             Log.d("OUTPUT", todo.toString())
         }*/
+        /*
 
+    //        val timestamp = DateTool.convertUnixtimeToDate("27/06/2013 13:31:00")
+    //        val timeString = DateTool.getDateTime(timestamp)
+    //        toast(timeString)
+
+        override fun onToDosFetched(toDos: Array<ToDo>?) {
+            super.onToDosFetched(toDos)
+
+        }*/
+
+        /* override fun onToDoAdded(toDo: ToDo?) {
+             super.onToDoAdded(toDo)
+
+             val updatedToDo = ToDo()
+             val updatedLocation = Location("New Home", LatLng(8.837, 50.18))
+             val updatedContacts = arrayOf("Frank", "Andy", "Tim")
+
+             updatedToDo.id = 1234
+             updatedToDo.name = "Testname"
+             updatedToDo.description = "New Updated Description"
+             updatedToDo.done = false
+             updatedToDo.expiry = 1
+             updatedToDo.favourite = false
+             updatedToDo.contacts = updatedContacts
+             updatedToDo.location = updatedLocation
+             updateToDo(updatedToDo, 1234)
+         }*/
     }
 
     //listener
@@ -47,7 +75,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         toast("Got ${todos?.size} ToDos")
     }
 
-    fun onLoggedIn(loggedIn: Boolean?) {
+    open fun onLoggedInUser(loggedIn: Boolean?) {
         toast("Logged in $loggedIn")
     }
 
@@ -94,11 +122,11 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    fun getLogin() {
-        ToDoServiceClient.loginUser("s@bht.de", "000000").observeOn(AndroidSchedulers.mainThread())
+    open fun loginUser(user: User) {
+        ToDoServiceClient.loginUser(user).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
-                    onLoggedIn(result.body())
+                    onLoggedInUser(result.body())
                 }, { error ->
                     onError(error)
                 })

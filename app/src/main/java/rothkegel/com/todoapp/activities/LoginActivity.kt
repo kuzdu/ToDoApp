@@ -1,88 +1,121 @@
 package rothkegel.com.todoapp.activities
 
 import android.os.Bundle
-import org.jetbrains.anko.toast
 import rothkegel.com.todoapp.R
-import rothkegel.com.todoapp.api.connector.utils.LatLng
-import rothkegel.com.todoapp.api.connector.utils.Location
-import rothkegel.com.todoapp.api.connector.utils.ToDo
-import rothkegel.com.todoapp.tools.DateTool
-import rothkegel.com.todoapp.tools.SortTool
+import android.text.Editable
+import android.text.TextUtils
+import android.text.TextWatcher
+import android.util.Patterns
+import kotlinx.android.synthetic.main.login_activity.*
+import org.jetbrains.anko.toast
+import rothkegel.com.todoapp.api.connector.utils.User
+import android.content.Intent
+import android.opengl.Visibility
+import android.view.View
 
 
 /*
     Next Steps:
-    -Datum Operationen
-    -API + Persitente Datenbank verheiraten
-    -Andere Anforderungen durchlesen, die nicht UI sind
+    Endgültige UI bauen
  */
 
 class LoginActivity : ToDoAbstractActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_start)
-
-
-        //    toast(DateTool.getDateTime(1372339860))
-
-
-        /*  getLogin()
-          fetchToDos()
-          fetchToDo(1)
-  //        fetchToDo(100)
-  //        deleteAllToDos()
-          removeToDo(1)
-          fetchToDo(0)
-
-
-          //ggf. das ausprobieren https://discuss.kotlinlang.org/t/how-to-append-a-list-to-an-immutable-list-of-lists/38
-          val contacts = arrayOf("Michael", "Jonas", "Lara")
-
-          val location = Location("Home", LatLng(50.837, 8.18))
-
-          val toDo = ToDo(1234, "MyName", "This is a description", 0, false, true, contacts, location)
-
-
-          addToDo(toDo)*/
-
-
-//        fetchToDos()
-
-//06/27/2013 @ 1:31pm
-       // DateTool.getDateTime(1372339860)
-
-
-        //format dd/MM/yyyy HH:mm:ss
-        val timestamp = DateTool.convertUnixtimeToDate("27/06/2013 13:31:00")
-
-        val timeString = DateTool.getDateTime(timestamp)
-        toast(timeString)
+        setContentView(R.layout.login_activity)
+        setMailTextChangedListener()
+        setPasswordTextChangedListener()
+        setButtonClickListener()
     }
 
-    /*
+    private fun setButtonClickListener() {
+        login_action.setOnClickListener {
+            loginActionClicked()
+        }
+    }
 
-    override fun onToDosFetched(toDos: Array<ToDo>?) {
-        super.onToDosFetched(toDos)
+    private fun loginActionClicked() {
 
-    }*/
+        if (TextUtils.isEmpty(login_email_address.text)) {
+            toast(getString(R.string.error_empty_mail_message))
+            return
+        }
+        if (TextUtils.isEmpty(login_password.text)) {
+            toast(getString(R.string.error_empty_password_message))
+            return
+        }
+        if (isInvalidMail()) {
+            showError(getString(R.string.error_invalid_mail_message), true)
+            return
+        }
 
-    /* override fun onToDoAdded(toDo: ToDo?) {
-         super.onToDoAdded(toDo)
+        val user = User(login_email_address.text.toString(), pwd = login_password.text.toString())
+        showLoading(true)
+        loginUser(user)
+    }
 
-         val updatedToDo = ToDo()
-         val updatedLocation = Location("New Home", LatLng(8.837, 50.18))
-         val updatedContacts = arrayOf("Frank", "Andy", "Tim")
+    private fun showError(errorMessage: String, show: Boolean) {
+        login_error_message.text = errorMessage
 
-         updatedToDo.id = 1234
-         updatedToDo.name = "Testname"
-         updatedToDo.description = "New Updated Description"
-         updatedToDo.done = false
-         updatedToDo.expiry = 1
-         updatedToDo.favourite = false
-         updatedToDo.contacts = updatedContacts
-         updatedToDo.location = updatedLocation
-         updateToDo(updatedToDo, 1234)
-     }*/
+        when (show) {
+            true -> login_error_message.visibility = View.VISIBLE
+            false -> login_error_message.visibility = View.GONE
+        }
+    }
+
+    private fun isInvalidMail() = !Patterns.EMAIL_ADDRESS.matcher(login_email_address.text).matches()
+
+    private fun setPasswordTextChangedListener() {
+        login_password.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(s: Editable) {
+                onTextFieldChanged()
+            }
+        })
+    }
+
+    private fun setMailTextChangedListener() {
+        login_email_address.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(s: Editable) {
+                onTextFieldChanged()
+            }
+        })
+    }
+
+    private fun onTextFieldChanged() {
+        showError("", false)
+        login_action.isEnabled = login_email_address.text.isNotEmpty() && login_password.text.isNotEmpty()
+    }
+
+    override fun onLoggedInUser(loggedIn: Boolean?) {
+        super.onLoggedInUser(loggedIn)
+
+        showLoading(false)
+        if (loggedIn == null) {
+            return
+        }
+
+        if (loggedIn) {
+            val intent = Intent(this, ToDoListActivity::class.java)
+            this.startActivity(intent)
+        } else {
+            showError(getString(R.string.error_wrong_credentials_message), true)
+        }
+    }
+
+    private fun showLoading(loading: Boolean) {
+        if (loading) {
+            login_action.visibility = View.GONE
+        } else {
+            login_action.visibility = View.VISIBLE
+        }
+    }
+
 
 }

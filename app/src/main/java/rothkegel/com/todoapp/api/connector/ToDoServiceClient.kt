@@ -9,8 +9,7 @@ object ToDoServiceClient {
 
     private val apiService = ToDoApiService.create()
 
-    fun loginUser(email: String, password: String): Observable<Response<Boolean>> {
-        val user = User(email, pwd = password)
+    fun loginUser(user: User): Observable<Response<Boolean>> {
         return apiService.putLogin(user)
     }
 
