@@ -13,11 +13,11 @@ class SortTool {
             return SortTool.sortByDone(toDos, true, false)
         }
 
-        fun getSortedByDoneFalseThenFavouriteThenExpiry(toDos: ArrayList<ToDo>): ArrayList<ToDo> {
+        fun getSortedByNonDoneThenFavouriteThenExpiry(toDos: ArrayList<ToDo>): ArrayList<ToDo> {
             return SortTool.sortByDone(toDos, false, true)
         }
 
-        fun getSortedByDoneFalseThenExpiryThenFavourite(toDos: ArrayList<ToDo>): ArrayList<ToDo> {
+        fun getSortedByNonDoneThenExpiryThenFavourite(toDos: ArrayList<ToDo>): ArrayList<ToDo> {
             return SortTool.sortByDone(toDos, false, false)
         }
 

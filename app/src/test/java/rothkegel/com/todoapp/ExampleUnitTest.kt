@@ -34,7 +34,7 @@ class ExampleUnitTest {
 
     @Test
     fun sortByDoneFalseThenExpiryThenFavourite() {
-        val toDosSorted = SortTool.getSortedByDoneFalseThenExpiryThenFavourite(getUnSortedToDos())  //expected 5,4,1,3,2
+        val toDosSorted = SortTool.getSortedByNonDoneThenExpiryThenFavourite(getUnSortedToDos())  //expected 5,4,1,3,2
         assertEquals(toDosSorted[0].id,5 )
         assertEquals(toDosSorted[1].id,4 )
         assertEquals(toDosSorted[2].id,1 )
@@ -45,7 +45,7 @@ class ExampleUnitTest {
 
     @Test
     fun sortByDoneFalseThenFavouriteThenExpiry() {
-        val toDosSorted = SortTool.getSortedByDoneFalseThenFavouriteThenExpiry(getUnSortedToDos())   //expeceted  1,5,4,3,2
+        val toDosSorted = SortTool.getSortedByNonDoneThenFavouriteThenExpiry(getUnSortedToDos())   //expeceted  1,5,4,3,2
         assertEquals(toDosSorted[0].id,1 )
         assertEquals(toDosSorted[1].id,5 )
         assertEquals(toDosSorted[2].id,4 )
