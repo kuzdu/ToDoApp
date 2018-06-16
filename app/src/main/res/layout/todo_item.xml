@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/todo_list_item_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="21.06.2018 15:23"
+        style="@style/Base.TextAppearance.Widget.AppCompat.Toolbar.Title"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/todo_list_item_done_action"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/todo_list_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            tools:text="Milch einkaufen gehen" />
+
+        <ImageButton
+            android:id="@+id/todo_list_item_favourite_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_star_border_black_24dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/todo_list_item_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        style="@style/Base.TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:alpha="0.5"
+        tools:text="Dies ist eine Beschreibung eines toDos. Be Happy with it. Diese Beschreibung geht über mehrere Zeilen, aber nie über mehr als zwei."
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:ellipsize="end"/>
+</LinearLayout>
