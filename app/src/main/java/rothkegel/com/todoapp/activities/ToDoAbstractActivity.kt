@@ -163,8 +163,8 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    fun updateToDo(toDo: ToDo, id: Int) {
-        ToDoServiceClient.updateToDo(toDo, id).observeOn(AndroidSchedulers.mainThread())
+    fun updateToDo(toDo: ToDo) {
+        ToDoServiceClient.updateToDo(toDo, toDo.id).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     onToDoUpdated(result.body())

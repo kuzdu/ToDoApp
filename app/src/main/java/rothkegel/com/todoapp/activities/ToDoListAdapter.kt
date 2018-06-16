@@ -11,32 +11,53 @@ import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.tools.DateTool
 
 
-class ToDoListAdapter(private val toDos : List<ToDo>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+interface ClickListener {
+    fun onDoneClicked(toDo: ToDo)
+}
 
-    // Gets the number of animals in the list
+class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+
+    var mCallback: ClickListener? = null
+
+    fun setClickListenerCallback(mCallback: ClickListener) {
+        this.mCallback = mCallback
+    }
+
     override fun getItemCount(): Int {
         return toDos.size
     }
 
-    // Inflates the item views
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.todo_item, parent, false))
     }
 
-    // Binds each animal in the ArrayList to a view
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+        holder?.date?.text = ""
+        holder?.name?.text = ""
+        holder?.description?.text = ""
+        holder?.done?.isChecked = false
+
         holder?.date?.text = DateTool.getDateTime(toDos[position].expiry)
         holder?.name?.text = toDos[position].name
         holder?.description?.text = toDos[position].description
+        holder?.done?.isChecked = toDos[position].done
 
+        if (toDos[position].description.isNullOrBlank()) {
+            holder?.description?.visibility = View.GONE
+        } else {
+            holder?.description?.visibility = View.VISIBLE
+        }
 
-
+        holder?.done?.setOnCheckedChangeListener { _, isChecked ->
+            toDos[position].done = isChecked
+            this.mCallback?.onDoneClicked(toDos[position])
+        }
     }
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-    // Holds the TextView that will add each animal to
-    val date = view.todo_list_item_name!!
+class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    val date = view.todo_list_item_date!!
     val name = view.todo_list_item_name!!
     val description = view.todo_list_item_description!!
+    val done = view.todo_list_item_done_action!!
 }
