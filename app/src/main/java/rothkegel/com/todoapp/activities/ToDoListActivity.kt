@@ -10,12 +10,7 @@ import rothkegel.com.todoapp.tools.SortTool
 
 class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
-
     private var toDos: ArrayList<ToDo> = ArrayList()
-
-    override fun onDoneClicked(toDo: ToDo) {
-        updateToDo(toDo)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,11 +18,34 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         fetchToDos()
     }
 
+    //interface implements
+    override fun onDoneClicked(toDo: ToDo) {
+        updateToDo(toDo)
+    }
+
+    override fun onFavouriteClicked(toDo: ToDo) {
+        updateToDo(toDo)
+    }
+
+    //api - on response
+    override fun onToDoUpdated(toDo: ToDo?) {
+        super.onToDoUpdated(toDo)
+
+        if (toDo == null) {
+            return
+        }
+
+        updateLocalToDosWith(toDo)
+        this.toDos = SortTool.getSortedByDoneFalseThenExpiryThenFavourite(toDos)
+        setAdapter(toDos)
+        updateUI()
+        toast(getString(R.string.to_do_list_successful_update_message))
+    }
+
     override fun onToDosFetched(toDos: Array<ToDo>?) {
         super.onToDosFetched(toDos)
 
         if (toDos == null) {
-            toast("Keine ToDos gefunden")
             return
         }
 
@@ -36,19 +54,6 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         setAdapter(toDos.toList())
     }
 
-    override fun onToDoUpdated(toDo: ToDo?) {
-        super.onToDoUpdated(toDo)
-
-        if (toDo == null) {
-            toast("No ToDo found")
-            return
-        }
-
-        updateLocalToDosWith(toDo)
-        this.toDos = SortTool.getSortedByDoneFalseThenExpiryThenFavourite(toDos)
-        setAdapter(toDos)
-        updateUI()
-    }
 
     private fun setAdapter(toDos: List<ToDo>) {
         val adapter = ToDoListAdapter(ArrayList(toDos.toList()), this)

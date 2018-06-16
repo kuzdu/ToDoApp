@@ -13,14 +13,15 @@ import rothkegel.com.todoapp.tools.DateTool
 
 interface ClickListener {
     fun onDoneClicked(toDo: ToDo)
+    fun onFavouriteClicked(toDo: ToDo)
 }
 
 class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
 
-    var mCallback: ClickListener? = null
+    private var clickListenerCallback: ClickListener? = null
 
     fun setClickListenerCallback(mCallback: ClickListener) {
-        this.mCallback = mCallback
+        this.clickListenerCallback = mCallback
     }
 
     override fun getItemCount(): Int {
@@ -51,7 +52,20 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
 
         holder?.done?.setOnCheckedChangeListener { _, isChecked ->
             toDos[position].done = isChecked
-            this.mCallback?.onDoneClicked(toDos[position])
+            this.clickListenerCallback?.onDoneClicked(toDos[position])
+        }
+
+
+        holder?.favourite?.setOnClickListener(null)
+        if (toDos[position].favourite) {
+            holder?.favourite?.setImageResource(R.drawable.ic_star_black_24dp)
+        } else {
+            holder?.favourite?.setImageResource(R.drawable.ic_star_border_black_24dp)
+        }
+
+        holder?.favourite?.setOnClickListener {
+            toDos[position].favourite = !toDos[position].favourite
+            this.clickListenerCallback?.onFavouriteClicked(toDos[position])
         }
     }
 }
@@ -61,4 +75,5 @@ class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val name = view.todo_list_item_name!!
     val description = view.todo_list_item_description!!
     val done = view.todo_list_item_done_action!!
+    val favourite = view.todo_list_item_favourite_action!!
 }

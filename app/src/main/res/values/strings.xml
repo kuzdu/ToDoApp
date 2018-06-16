@@ -9,4 +9,5 @@
     <string name="error_empty_password_message">Gib ein Passwort ein, um dich anzumelden.</string>
     <string name="error_wrong_credentials_message">Falsche Zugangsdaten.</string>
     <string name="error_wrong_password_length_message">Das Passwort muss genau 6 Zeichen lang sein.</string>
+    <string name="to_do_list_successful_update_message">Erfolgreich aktualisiert.</string>
 </resources>

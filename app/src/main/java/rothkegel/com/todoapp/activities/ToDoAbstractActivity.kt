@@ -68,36 +68,36 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     //listener
     open fun onToDoUpdated(toDo: ToDo?) {
-        toast("Updated ${toDo.toString()}")
+        //toast("Updated ${toDo.toString()}")
     }
 
     open fun onToDosFetched(todos: Array<ToDo>?) {
-        toast("Got ${todos?.size} ToDos")
+       // toast("Got ${todos?.size} ToDos")
     }
 
     open fun onLoggedInUser(loggedIn: Boolean?) {
-        toast("Logged in $loggedIn")
+       // toast("Logged in $loggedIn")
     }
 
     fun onSingleTodoFetched(toDo: ToDo?) {
-        toast("ToDo Name ${toDo?.name.toString()}")
+       // toast("ToDo Name ${toDo?.name.toString()}")
     }
 
     fun onError(error: Throwable) {
-        toast(error.localizedMessage)
+       // toast(error.localizedMessage)
 //        error.printStackTrace()
     }
 
     fun onDeletedAllToDos(removed: Boolean?) {
-        toast("Deleted: $removed")
+       // toast("Deleted: $removed")
     }
 
     fun onToDoRemoved(removed: Boolean?) {
-        toast("Removed: $removed")
+        //toast("Removed: $removed")
     }
 
     open fun onToDoAdded(toDo: ToDo?) {
-        toast("Added ${toDo?.name}")
+       // toast("Added ${toDo?.name}")
     }
 
 
