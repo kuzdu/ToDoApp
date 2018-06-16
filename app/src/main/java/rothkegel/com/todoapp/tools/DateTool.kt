@@ -1,5 +1,6 @@
 package rothkegel.com.todoapp.tools
 
+import org.joda.time.DateTime
 import java.text.SimpleDateFormat
 import java.util.*
 import org.joda.time.format.DateTimeFormat
@@ -19,6 +20,11 @@ class DateTool {
             val formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss")
             formatter.parseLocalDateTime(dateString)
             return formatter.parseDateTime(dateString).millis / 1000
+        }
+
+        fun isExpired(expiry: Long): Boolean {
+            val now = DateTime().getMillis() / 1000
+            return now < expiry
         }
     }
 }

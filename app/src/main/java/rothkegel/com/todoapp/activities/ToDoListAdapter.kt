@@ -1,6 +1,7 @@
 package rothkegel.com.todoapp.activities
 
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -37,9 +38,15 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
         holder?.name?.text = ""
         holder?.description?.text = ""
 
+        if (DateTool.isExpired(toDos[position].expiry)) {
+            holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
+        } else {
+            holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+        }
         holder?.date?.text = DateTool.getDateTime(toDos[position].expiry)
         holder?.name?.text = toDos[position].name
         holder?.description?.text = toDos[position].description
+
 
         if (toDos[position].description.isNullOrBlank()) {
             holder?.description?.visibility = View.GONE
