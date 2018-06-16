@@ -102,7 +102,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
 
     //request
-    fun fetchToDos() {
+    open fun fetchToDos() {
         ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
