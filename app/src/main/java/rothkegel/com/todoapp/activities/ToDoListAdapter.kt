@@ -35,18 +35,19 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
         holder?.date?.text = ""
         holder?.name?.text = ""
         holder?.description?.text = ""
-        holder?.done?.isChecked = false
 
         holder?.date?.text = DateTool.getDateTime(toDos[position].expiry)
         holder?.name?.text = toDos[position].name
         holder?.description?.text = toDos[position].description
-        holder?.done?.isChecked = toDos[position].done
 
         if (toDos[position].description.isNullOrBlank()) {
             holder?.description?.visibility = View.GONE
         } else {
             holder?.description?.visibility = View.VISIBLE
         }
+
+        holder?.done?.setOnCheckedChangeListener(null)
+        holder?.done?.isChecked = toDos[position].done
 
         holder?.done?.setOnCheckedChangeListener { _, isChecked ->
             toDos[position].done = isChecked

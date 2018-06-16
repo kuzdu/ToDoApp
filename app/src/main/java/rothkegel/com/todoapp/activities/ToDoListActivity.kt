@@ -14,8 +14,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     private var toDos: ArrayList<ToDo> = ArrayList()
 
     override fun onDoneClicked(toDo: ToDo) {
-          toast("Callback $toDo")
-        //updateToDo(toDo)
+        updateToDo(toDo)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
