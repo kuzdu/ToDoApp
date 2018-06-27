@@ -3,24 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="16dp"
     android:orientation="vertical">
 
-    <TextView
+    <EditText
         android:id="@+id/todo_name_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        tools:text="Name des Todos"
+        android:hint="@string/todo_detail_name_desc"
         android:text="" />
 
-    <TextView
+    <EditText
         android:id="@+id/todo_description_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        tools:text="Description des Todos"
+        android:hint="@string/todo_detail_description_desc"
         android:text="" />
 
     <LinearLayout
@@ -29,19 +28,12 @@
         android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
-        <TextView
+        <EditText
             android:id="@+id/todo_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Choose a date" />
+            android:hint="@string/todo_detail_date_desc" />
 
-        <TextView
-            android:id="@+id/todo_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Choose a time" />
     </LinearLayout>
 
     <CheckBox
@@ -49,20 +41,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Als erledigt markieren?" />
+        android:text="@string/todo_detail_done_desc" />
 
     <CheckBox
         android:id="@+id/todo_is_favourite_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Als favorit markieren?" />
+        android:text="@string/todo_detail_favourite_desc" />
 
     <TextView
         android:id="@+id/todo_linked_contacts_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="@string/todo_details_contacts_title" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -77,6 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:clickable="true"
+            android:focusable="true"
             app:backgroundTint="?attr/colorControlNormal"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
@@ -99,8 +92,8 @@
             android:layout_gravity="end"
             android:layout_marginTop="16dp"
             android:clickable="true"
-            app:srcCompat="@android:drawable/ic_input_add"
-            android:focusable="true" />
+            android:focusable="true"
+            app:srcCompat="@android:drawable/ic_input_add" />
     </LinearLayout>
 
 </LinearLayout>

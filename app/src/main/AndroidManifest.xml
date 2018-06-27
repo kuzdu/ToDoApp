@@ -22,7 +22,7 @@
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.TodoDetailActivity" />
+        <activity android:name=".activities.ToDoDetailActivity" />
     </application>
 
 </manifest>

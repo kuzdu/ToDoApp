@@ -14,4 +14,11 @@
     <string name="menu_non_done_datum_favourite_title">Nicht fertig, Zeit, Favorit</string>
     <string name="menu_done_favourite_date_title">Fertig, Favorit, Zeit</string>
     <string name="menu_done_date_favourite_title">Fertig, Zeit, Favorit</string>
+    <string name="todo_detail_description_desc">Beschreibung</string>
+    <string name="todo_detail_date_desc">Wähle ein Datum</string>
+    <string name="todo_detail_time_desc">Wähle einen Zeitpunkt</string>
+    <string name="todo_detail_name_desc">Name</string>
+    <string name="todo_detail_done_desc">Als erledigt markieren?</string>
+    <string name="todo_detail_favourite_desc">Als favorit markieren?</string>
+    <string name="todo_details_contacts_title">TextView</string>
 </resources>

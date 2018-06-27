@@ -15,7 +15,7 @@ import rothkegel.com.todoapp.tools.DateTool
 interface ClickListener {
     fun onDoneClicked(toDo: ToDo)
     fun onFavouriteClicked(toDo: ToDo)
-    fun onToDoItemClicekd(toDo: ToDo)
+    fun onToDoItemClicked(position: Int)
 }
 
 class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
@@ -38,6 +38,7 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
         holder?.date?.text = ""
         holder?.name?.text = ""
         holder?.description?.text = ""
+
 
         if (DateTool.isExpired(toDos[position].expiry)) {
             holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
@@ -75,6 +76,13 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
             toDos[position].favourite = !toDos[position].favourite
             this.clickListenerCallback?.onFavouriteClicked(toDos[position])
         }
+
+        holder?.wholeItem?.setOnClickListener(null)
+
+        holder?.wholeItem?.setOnClickListener {
+            this.clickListenerCallback?.onToDoItemClicked(position)
+        }
+
     }
 }
 
@@ -84,4 +92,5 @@ class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val description = view.todo_list_item_description!!
     val done = view.todo_list_item_done_action!!
     val favourite = view.todo_list_item_favourite_action!!
+    val wholeItem = view.todo_list_single_item!!
 }

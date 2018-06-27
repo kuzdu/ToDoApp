@@ -1,5 +1,6 @@
 package rothkegel.com.todoapp.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -9,6 +10,8 @@ import org.jetbrains.anko.toast
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.tools.SortTool
+import com.google.gson.Gson
+
 
 class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
@@ -18,6 +21,13 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_list_activity)
         fetchToDos()
+        setAddToDoClickListener()
+    }
+
+    private fun setAddToDoClickListener() {
+        addToDoActionButton.setOnClickListener {
+            goToToDoDetail()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -62,6 +72,23 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         updateToDo(toDo)
     }
 
+    override fun onToDoItemClicked(position: Int) {
+        goToToDoDetail(position)
+    }
+
+    private fun goToToDoDetail() {
+        val i = Intent(this, ToDoDetailActivity::class.java)
+        startActivityForResult(i, toDoDetailRequestCode)
+    }
+
+    private fun goToToDoDetail(position: Int) {
+        val i = Intent(this, ToDoDetailActivity::class.java)
+        val toDo = toDos[position]
+        val gson = Gson()
+        i.putExtra(toDoIdentifier, gson.toJson(toDo))
+        startActivityForResult(i, toDoDetailRequestCode)
+    }
+
     //api - on response
     override fun onToDoUpdated(toDo: ToDo?) {
         super.onToDoUpdated(toDo)
@@ -74,8 +101,9 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onToDosFetched(toDos)
         if (toDos == null) return
         this.toDos = ArrayList(toDos.toList())
+        this.toDos = SortTool.getSortedByNonDoneThenFavouriteThenExpiry(this.toDos)
         todo_list_items.layoutManager = LinearLayoutManager(this)
-        setAdapter(toDos.toList())
+        setAdapter(this.toDos.toList())
     }
 
 
@@ -88,8 +116,31 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
     private fun updateLocalToDosWith(toDo: ToDo) {
         val foundToDo = toDos.find { t -> t.id == toDo.id } ?: return
+
         val index = toDos.indexOf(foundToDo)
         this.toDos[index] = toDo
-        todo_list_items.adapter.notifyDataSetChanged()
+
+        setAdapter(this.toDos.toList())
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == toDoDetailRequestCode) {
+            val toDoAsString = data?.getStringExtra(toDoIdentifier)
+            if (toDoAsString.isNullOrEmpty()) {
+                return
+            }
+            val gson = Gson()
+            val parsedToDo = gson.fromJson<ToDo>(toDoAsString, ToDo::class.java)
+
+
+            //UNTERSCHEIDUNG FINDEN ZWISCHEN DELETE UND UPDATE und dann DELETE FUNKTION Schreiben
+
+            if (parsedToDo != null) {
+                updateLocalToDosWith(parsedToDo)
+            }
+        }
+        toast("Refreshed the list")
     }
 }

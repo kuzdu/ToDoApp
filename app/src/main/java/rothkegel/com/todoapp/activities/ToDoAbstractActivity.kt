@@ -12,6 +12,10 @@ import rothkegel.com.todoapp.database.ToDoDBHelper
 
 open class ToDoAbstractActivity : AppCompatActivity() {
 
+
+    internal val toDoDetailRequestCode = 10
+    internal val toDoIdentifier = "toDoIdentifier"
+
     lateinit var toDoDBHelper: ToDoDBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +72,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     //listener
     open fun onToDoUpdated(toDo: ToDo?) {
-        //toast("Updated ${toDo.toString()}")
+        toast("Updated ${toDo?.name}")
     }
 
     open fun onToDosFetched(todos: Array<ToDo>?) {
@@ -84,7 +88,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     fun onError(error: Throwable) {
-       // toast(error.localizedMessage)
+        toast(error.localizedMessage)
 //        error.printStackTrace()
     }
 
@@ -92,12 +96,12 @@ open class ToDoAbstractActivity : AppCompatActivity() {
        // toast("Deleted: $removed")
     }
 
-    fun onToDoRemoved(removed: Boolean?) {
+    open fun onToDoRemoved(removed: Boolean?) {
         //toast("Removed: $removed")
     }
 
     open fun onToDoAdded(toDo: ToDo?) {
-       // toast("Added ${toDo?.name}")
+        toast("Added ${toDo?.name}")
     }
 
 
