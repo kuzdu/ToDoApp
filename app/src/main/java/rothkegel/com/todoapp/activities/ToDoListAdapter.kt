@@ -15,6 +15,7 @@ import rothkegel.com.todoapp.tools.DateTool
 interface ClickListener {
     fun onDoneClicked(toDo: ToDo)
     fun onFavouriteClicked(toDo: ToDo)
+    fun onToDoItemClicekd(toDo: ToDo)
 }
 
 class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
