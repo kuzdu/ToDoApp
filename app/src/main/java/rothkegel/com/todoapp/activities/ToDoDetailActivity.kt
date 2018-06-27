@@ -169,7 +169,10 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     override fun onToDoRemoved(removed: Boolean?) {
         super.onToDoRemoved(removed)
         if (removed != null && removed) {
-            finishDetailActivitiy(toDo)
+            val resultIntent = Intent()
+            resultIntent.putExtra(removedToDoIdentifier, toDo.id)
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
         } else {
             toast("Beim Löschen ist ein Fehler aufgetreten. - ¯\\_(ツ)_/¯")
         }

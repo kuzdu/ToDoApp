@@ -78,7 +78,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
     private fun goToToDoDetail() {
         val i = Intent(this, ToDoDetailActivity::class.java)
-        startActivityForResult(i, toDoDetailRequestCode)
+        startActivityForResult(i, toDoDetailUpdateRequestCode)
     }
 
     private fun goToToDoDetail(position: Int) {
@@ -86,7 +86,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         val toDo = toDos[position]
         val gson = Gson()
         i.putExtra(toDoIdentifier, gson.toJson(toDo))
-        startActivityForResult(i, toDoDetailRequestCode)
+        startActivityForResult(i, toDoDetailUpdateRequestCode)
     }
 
     //api - on response
@@ -123,23 +123,42 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         setAdapter(this.toDos.toList())
     }
 
+    private fun removeLocalToDoWith(id: Int) {
+        val foundToDo = toDos.find { t -> t.id == id } ?: return
+
+        val index = toDos.indexOf(foundToDo)
+        toDos.removeAt(index)
+
+        setAdapter(this.toDos.toList())
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == toDoDetailRequestCode) {
+
+        if (requestCode == toDoDetailUpdateRequestCode) {
             val toDoAsString = data?.getStringExtra(toDoIdentifier)
-            if (toDoAsString.isNullOrEmpty()) {
+
+            //update
+            if (!toDoAsString.isNullOrEmpty()) {
+                val gson = Gson()
+                val parsedToDo = gson.fromJson<ToDo>(toDoAsString, ToDo::class.java)
+
+                if (parsedToDo != null) {
+                    updateLocalToDosWith(parsedToDo)
+                }
                 return
             }
-            val gson = Gson()
-            val parsedToDo = gson.fromJson<ToDo>(toDoAsString, ToDo::class.java)
 
+            //delete
+            val toDoId = data?.getIntExtra(removedToDoIdentifier,-1)
 
-            //UNTERSCHEIDUNG FINDEN ZWISCHEN DELETE UND UPDATE und dann DELETE FUNKTION Schreiben
-
-            if (parsedToDo != null) {
-                updateLocalToDosWith(parsedToDo)
+            if (toDoId == null || toDoId == -1) {
+                return
             }
+            removeLocalToDoWith(toDoId)
+
+
         }
         toast("Refreshed the list")
     }

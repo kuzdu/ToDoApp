@@ -13,8 +13,9 @@ import rothkegel.com.todoapp.database.ToDoDBHelper
 open class ToDoAbstractActivity : AppCompatActivity() {
 
 
-    internal val toDoDetailRequestCode = 10
+    internal val toDoDetailUpdateRequestCode = 10
     internal val toDoIdentifier = "toDoIdentifier"
+    internal val removedToDoIdentifier = "removedToDoIdentifier"
 
     lateinit var toDoDBHelper: ToDoDBHelper
 
