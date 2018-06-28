@@ -162,7 +162,10 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         //TODO: contacts fehlt noch
 
         if (toDo.id == -1) {
-            insertToDoSQL(toDo)
+            val insertToDo = insertToDoSQL(toDo)
+            if (insertToDo != null) {
+                onToDoInsertSQL(insertToDo)
+            }
         } else {
             updateToDoSQL(toDo)
         }

@@ -34,6 +34,9 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val db = writableDatabase
 
         val values = ContentValues()
+        if (databaseToDo.id.toInt() != -1) {
+            values.put(DBContract.TodoEntry.COLUMN_ID,databaseToDo.id)
+        }
         values.put(DBContract.TodoEntry.COLUMN_NAME, databaseToDo.name)
         values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, databaseToDo.description)
         values.put(DBContract.TodoEntry.COLUMN_FAVOURITE, databaseToDo.favourite)
@@ -86,6 +89,12 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }
 
         return null
+    }
+
+    @Throws(SQLiteConstraintException::class)
+    fun deleteAllTodos(): Boolean {
+        val db = writableDatabase
+        return db.delete(DBContract.TodoEntry.TABLE_NAME, null, null) > 0
     }
 
     fun readAllTodos(): ArrayList<DatabaseToDo> {

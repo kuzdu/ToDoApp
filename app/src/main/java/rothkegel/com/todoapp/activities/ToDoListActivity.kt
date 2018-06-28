@@ -18,6 +18,8 @@ import rothkegel.com.todoapp.tools.SortTool
 class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
     private var toDos: ArrayList<ToDo> = ArrayList()
+    private var syncRequests = 0
+    private var triesToRemoveAllToDos = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +37,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
         alert("Du hast keine Verbindung zur API. D.h. deine ToDos werden nur lokal auf deinem Gerät gespeichert.\n\n¯\\_(ツ)_/¯") {
             title = "Keine Verbidung zur API"
-            yesButton {  }
+            yesButton { }
         }.show()
     }
 
@@ -112,13 +114,84 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         //toast(getString(R.string.to_do_list_successful_update_message))
     }
 
+
+    override fun onRemoveAllAPIToDos(removed: Boolean?) {
+        super.onRemoveAllAPIToDos(removed)
+
+        triesToRemoveAllToDos += 1
+        if (removed != null && removed) {
+            toast("Alle Web-ToDos gelöscht - starte Synchronisation")
+            sendLocalToDosToWeb()
+            return
+        }
+
+        if (triesToRemoveAllToDos > 2) {
+            toast("3 Mal versucht alle ToDos zu löschen. Es hat nicht funktioniert.")
+            return
+        }
+        removeAllAPIToDos()
+    }
+
     override fun onToDosFetched(toDos: Array<ToDo>?) {
         super.onToDosFetched(toDos)
+
+        if (hasInternet()) {
+            val localToDos = getToDosSQL()
+            if (localToDos.isNotEmpty()) {
+                removeAllAPIToDos()
+                return
+            }
+
+            //sync web api calls to local db
+            clearDataBaseEntries()
+            if (toDos == null) {
+                return
+            }
+            for (toDo in toDos) {
+                insertToDoSQL(toDo)
+            }
+        }
+
+        //show todos
         if (toDos == null) return
         this.toDos = ArrayList(toDos.toList())
         this.toDos = SortTool.getSortedByNonDoneThenFavouriteThenExpiry(this.toDos)
         todo_list_items.layoutManager = LinearLayoutManager(this)
         setAdapter(this.toDos.toList())
+    }
+
+    private fun sendLocalToDosToWeb() {
+        val localToDos = getToDosSQL()
+        if (localToDos.isEmpty()) {
+            return
+        }
+        syncRequests = localToDos.size
+
+        for (localToDo in localToDos) {
+            addToDo(localToDo)
+        }
+    }
+
+    override fun onToDoAdded(toDo: ToDo?) {
+        super.onToDoAdded(toDo)
+
+        if (toDo == null) {
+            toast("Unbekannter Fehler: Leeres ToDo zurück bekommen.")
+            return
+        }
+
+        val successFul = toDoDBHelper.deleteById(toDo.id.toLong())
+        if (!successFul) {
+            toast("Unbekannter Fehler: DB-ToDo konnte nicht gelöscht werden ${toDo.id}")
+            return
+        }
+
+        syncRequests -= 1
+
+        if (syncRequests <= 0) {
+            fetchToDos()
+            toast("Alle lokalen ToDos wurde in die API eingepflegt.")
+        }
     }
 
 

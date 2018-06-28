@@ -12,6 +12,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.login_activity.*
 import org.jetbrains.anko.toast
 import rothkegel.com.todoapp.R
+import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.api.connector.utils.User
 
 class LoginActivity : ToDoAbstractActivity() {

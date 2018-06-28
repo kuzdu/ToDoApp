@@ -40,16 +40,20 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     //"adapters"
-    open fun insertToDoSQL(toDo: ToDo) {
+    open fun insertToDoSQL(toDo: ToDo): ToDo? {
         val databaseToDo = DatabaseToDo(toDo)
-        val successful = toDoDBHelper.insertToDo(databaseToDo)
-        if (successful) {
-            if (hasInternet()) {
-                addToDo(toDo)
-                return
-            }
-            onToDoAdded(toDo)
+        if (toDoDBHelper.insertToDo(databaseToDo)) {
+            return toDo
         }
+        return null
+    }
+
+    open fun onToDoInsertSQL(toDo: ToDo) {
+        if (hasInternet()) {
+            addToDo(toDo)
+            return
+        }
+        onToDoAdded(toDo)
     }
 
 
@@ -96,6 +100,31 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         }
     }
 
+
+    open fun getToDosSQL(): Array<ToDo> {
+        val databaseToDos = toDoDBHelper.readAllTodos()
+
+        val toDos: MutableList<ToDo> = arrayListOf()
+
+        for (databaseToDo in databaseToDos) {
+            val toDo = ToDo()
+            toDo.id = databaseToDo.id.toInt()
+            toDo.name = databaseToDo.name
+            toDo.description = databaseToDo.description
+            toDo.favourite = databaseToDo.favourite
+            toDo.done = databaseToDo.done
+            toDo.expiry = databaseToDo.expiry
+
+
+            val contacts = databaseToDo.contacts
+            if (!contacts.isNullOrEmpty()) {
+                toDo.contacts = databaseToDo.contacts.split("|").toTypedArray()
+            }
+            toDos.add(toDo)
+        }
+        return toDos.toTypedArray()
+    }
+
     private fun fetchToDosSQL() {
 
         val databaseToDos = toDoDBHelper.readAllTodos()
@@ -121,7 +150,6 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         onToDosFetched(toDos.toTypedArray())
     }
 
-
     //listener
     open fun onToDoUpdated(toDo: ToDo?) {
         toast("Updated ${toDo?.name}")
@@ -129,6 +157,11 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     open fun onToDosFetched(toDos: Array<ToDo>?) {
         // toast("Got ${toDos?.size} ToDos")
+    }
+
+
+    open fun clearDataBaseEntries(): Boolean {
+        return toDoDBHelper.deleteAllTodos()
     }
 
     open fun onLoggedInUser(loggedIn: Boolean?) {
@@ -144,7 +177,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 //        error.printStackTrace()
     }
 
-    fun onDeletedAllToDos(removed: Boolean?) {
+    open fun onRemoveAllAPIToDos(removed: Boolean?) {
         // toast("Deleted: $removed")
     }
 
@@ -155,7 +188,6 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     open fun onToDoAdded(toDo: ToDo?) {
         toast("Added ${toDo?.name}")
     }
-
 
     //request
     private fun fetchToDosFromApi() {
@@ -188,11 +220,11 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    fun deleteAllToDos() {
+    fun removeAllAPIToDos() {
         ToDoServiceClient.removeAllToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
-                    onDeletedAllToDos(result.body())
+                    onRemoveAllAPIToDos(result.body())
                 }, { error ->
                     onError(error)
                 })
@@ -209,7 +241,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    private fun addToDo(toDo: ToDo) {
+    fun addToDo(toDo: ToDo) {
         ToDoServiceClient.addToDo(toDo).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
