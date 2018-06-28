@@ -7,7 +7,8 @@ import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
-import rothkegel.com.todoapp.models.ToDoOld
+import rothkegel.com.todoapp.api.connector.utils.ToDo
+import rothkegel.com.todoapp.models.DatabaseToDo
 import java.util.*
 
 
@@ -29,15 +30,16 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
 
     @Throws(SQLiteConstraintException::class)
-    fun insertTodo(todo: ToDoOld): Long {
+    fun insertToDo(databaseToDo: DatabaseToDo): Long {
         val db = writableDatabase
 
         val values = ContentValues()
-        values.put(DBContract.TodoEntry.COLUMN_NAME, todo.name)
-        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, todo.description)
-        values.put(DBContract.TodoEntry.COLUMN_FAVORITE, todo.favorite)
-        values.put(DBContract.TodoEntry.COLUMN_DONE, todo.done)
-        values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, todo.dueDate)
+        values.put(DBContract.TodoEntry.COLUMN_NAME, databaseToDo.name)
+        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, databaseToDo.description)
+        values.put(DBContract.TodoEntry.COLUMN_FAVOURITE, databaseToDo.favourite)
+        values.put(DBContract.TodoEntry.COLUMN_DONE, databaseToDo.done)
+        values.put(DBContract.TodoEntry.COLUMN_EXPIRY, databaseToDo.expiry)
+        values.put(DBContract.TodoEntry.COLUMN_CONTACTS, databaseToDo.contacts)
 
         return db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
     }
@@ -49,21 +51,22 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
 
-    fun changeToDo(changedToDoOld: ToDoOld): Boolean {
+    fun changeToDo(changedDatabaseToDo: DatabaseToDo): Boolean {
 
         val db = writableDatabase
         val values = ContentValues()
 
-        values.put(DBContract.TodoEntry.COLUMN_NAME, changedToDoOld.name)
-        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, changedToDoOld.description)
-        values.put(DBContract.TodoEntry.COLUMN_FAVORITE, changedToDoOld.favorite)
-        values.put(DBContract.TodoEntry.COLUMN_DONE, changedToDoOld.done)
-        values.put(DBContract.TodoEntry.COLUMN_DUE_DATE, changedToDoOld.dueDate)
+        values.put(DBContract.TodoEntry.COLUMN_NAME, changedDatabaseToDo.name)
+        values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, changedDatabaseToDo.description)
+        values.put(DBContract.TodoEntry.COLUMN_FAVOURITE, changedDatabaseToDo.favourite)
+        values.put(DBContract.TodoEntry.COLUMN_DONE, changedDatabaseToDo.done)
+        values.put(DBContract.TodoEntry.COLUMN_CONTACTS, changedDatabaseToDo.contacts)
+        values.put(DBContract.TodoEntry.COLUMN_EXPIRY, changedDatabaseToDo.expiry)
 
-        return db.update(DBContract.TodoEntry.TABLE_NAME, values, DBContract.TodoEntry.COLUMN_ID + "=" + changedToDoOld.id, null) > 0
+        return db.update(DBContract.TodoEntry.TABLE_NAME, values, DBContract.TodoEntry.COLUMN_ID + "=" + changedDatabaseToDo.id, null) > 0
     }
 
-    fun readToDoById(id: Long): ToDoOld? {
+    fun readToDoById(id: Long): DatabaseToDo? {
 
         val db = writableDatabase
         val cursor: Cursor?
@@ -85,8 +88,8 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return null
     }
 
-    fun readAllTodos(): ArrayList<ToDoOld> {
-        val toDos = ArrayList<ToDoOld>()
+    fun readAllTodos(): ArrayList<DatabaseToDo> {
+        val toDos = ArrayList<DatabaseToDo>()
         val db = writableDatabase
         val cursor: Cursor?
         try {
@@ -109,29 +112,31 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return toDos
     }
 
-    private fun createToDoElement(cursor: Cursor): ToDoOld {
+    private fun createToDoElement(cursor: Cursor): DatabaseToDo {
 
         val id = cursor.getLong(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_ID))
         val name = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_NAME))
         val description = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DESCRIPTION))
         val done = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DONE)) > 0
-        val favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVORITE)) > 0
-        val dueDate = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_DUE_DATE))
+        val favorite = cursor.getInt(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_FAVOURITE)) > 0
+        val contacts = cursor.getString(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_CONTACTS))
+        val expiry = cursor.getLong(cursor.getColumnIndex(DBContract.TodoEntry.COLUMN_EXPIRY))
 
-        val toDo = ToDoOld()
-        toDo.id = id
-        toDo.name = name
-        toDo.description = description
-        toDo.done = done
-        toDo.favorite = favorite
-        toDo.dueDate = dueDate
+        val databaseToDo = DatabaseToDo()
+        databaseToDo.id = id
+        databaseToDo.name = name
+        databaseToDo.description = description
+        databaseToDo.done = done
+        databaseToDo.favourite = favorite
+        databaseToDo.contacts = contacts
+        databaseToDo.expiry = expiry
 
-        return toDo
+        return databaseToDo
     }
 
     companion object {
         // If you change the database schema, you must increment the database version.
-        const val DATABASE_VERSION = 11
+        const val DATABASE_VERSION = 12
         const val DATABASE_NAME = "ToDo.db"
 
         private const val SQL_CREATE_ENTRIES =
@@ -139,8 +144,9 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                         DBContract.TodoEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                         DBContract.TodoEntry.COLUMN_NAME + " TEXT," +
                         DBContract.TodoEntry.COLUMN_DESCRIPTION + " TEXT," +
-                        DBContract.TodoEntry.COLUMN_DUE_DATE + " TEXT," +
-                        DBContract.TodoEntry.COLUMN_FAVORITE + " INTEGER," +
+                        DBContract.TodoEntry.COLUMN_EXPIRY + " INTEGER," +
+                        DBContract.TodoEntry.COLUMN_FAVOURITE + " INTEGER," +
+                        DBContract.TodoEntry.COLUMN_CONTACTS + " TEXT," +
                         DBContract.TodoEntry.COLUMN_DONE + " INTEGER" + ")"
 
         private const val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + DBContract.TodoEntry.TABLE_NAME

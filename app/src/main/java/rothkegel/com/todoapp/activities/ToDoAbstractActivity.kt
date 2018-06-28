@@ -36,14 +36,17 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         toDoDBHelper = ToDoDBHelper(this)
 
 
+
+
+
         /*
-        val todo = ToDoOld()
+        val todo = DatabaseToDo()
         todo.name = "Name"
         todo.description = "This is a description"
         todo.dueDate = "Date"
         todo.favorite = true
         todo.done = true
-        toDoDBHelper.insertTodo(todo)
+        toDoDBHelper.insertToDo(todo)
 
 
         val todos = toDoDBHelper.readAllTodos()
@@ -81,6 +84,18 @@ open class ToDoAbstractActivity : AppCompatActivity() {
              updateToDo(updatedToDo, 1234)
          }*/
     }
+
+    //"adapter"
+
+    open fun insertToDoSQL(toDo: ToDo) {
+
+
+
+//        toDoDBHelper.insertToDo()
+    }
+
+
+
 
     //listener
     open fun onToDoUpdated(toDo: ToDo?) {
