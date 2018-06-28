@@ -6,6 +6,8 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import rothkegel.com.todoapp.activities.baseUrl
+import rothkegel.com.todoapp.activities.port
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.api.connector.utils.User
 
@@ -45,7 +47,7 @@ interface ToDoApiService {
             val retrofit = Retrofit.Builder()
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
-                    .baseUrl("http://192.168.178.20:8080/api/")
+                    .baseUrl("$baseUrl:$port/api/")
                     .build()
 
             return retrofit.create(ToDoApiService::class.java)

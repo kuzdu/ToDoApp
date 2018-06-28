@@ -20,6 +20,17 @@ class LoginActivity : ToDoAbstractActivity() {
         setMailTextChangedListener()
         setPasswordTextChangedListener()
         setButtonClickListener()
+        checkInternetConnection()
+    }
+
+    private fun checkInternetConnection() {
+        showInternetCheckLoading(true)
+        hasInternetConnection().subscribe { hasInternet ->
+            if (!hasInternet) {
+                goToToDoList()
+            }
+            showInternetCheckLoading(false)
+        }
     }
 
     private fun setButtonClickListener() {
@@ -50,7 +61,7 @@ class LoginActivity : ToDoAbstractActivity() {
         }
 
         val user = User(login_email_address.text.toString(), pwd = login_password.text.toString())
-        showLoading(true)
+        showLoginLoading(true)
         loginUser(user)
     }
 
@@ -94,21 +105,45 @@ class LoginActivity : ToDoAbstractActivity() {
 
     override fun onLoggedInUser(loggedIn: Boolean?) {
         super.onLoggedInUser(loggedIn)
-
-        showLoading(false)
         if (loggedIn == null) {
             return
         }
 
         if (loggedIn) {
-            val intent = Intent(this, ToDoListActivity::class.java)
-            this.startActivity(intent)
+            goToToDoList()
         } else {
             showError(getString(R.string.error_wrong_credentials_message), true)
         }
+        showLoginLoading(false)
     }
 
-    private fun showLoading(loading: Boolean) {
+    private fun goToToDoList() {
+        val intent = Intent(this, ToDoListActivity::class.java)
+        this.startActivity(intent)
+    }
+
+
+    private fun showInternetCheckLoading(loading: Boolean) {
+        if (loading) {
+            login_welcome_message.visibility = View.INVISIBLE
+            login_email_address.visibility = View.INVISIBLE
+            login_password.visibility = View.INVISIBLE
+            login_error_message.visibility = View.GONE
+
+            login_progress_bar.visibility = View.VISIBLE
+            login_action.visibility = View.GONE
+        } else {
+            login_welcome_message.visibility = View.VISIBLE
+            login_email_address.visibility = View.VISIBLE
+            login_password.visibility = View.VISIBLE
+            login_error_message.visibility = View.GONE
+
+            login_progress_bar.visibility = View.GONE
+            login_action.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showLoginLoading(loading: Boolean) {
         if (loading) {
             login_progress_bar.visibility = View.VISIBLE
             login_action.visibility = View.GONE

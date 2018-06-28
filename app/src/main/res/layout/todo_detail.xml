@@ -50,50 +50,64 @@
         android:layout_marginTop="16dp"
         android:text="@string/todo_detail_favourite_desc" />
 
-    <TextView
-        android:id="@+id/todo_linked_contacts_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/todo_details_contacts_title" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/removeTodoButton"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:clickable="true"
-            android:focusable="true"
-            app:backgroundTint="?attr/colorControlNormal"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/addContactsButton"
+            <TextView
+                android:id="@+id/todo_linked_contacts_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/todo_details_contacts_title" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:backgroundTint="?attr/colorControlNormal"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:gravity="bottom"
+            android:orientation="vertical">
 
-            app:srcCompat="@color/colorPrimaryDark" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/addOrUpdateToDo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/removeTodoButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:clickable="true"
+                android:focusable="true"
+                app:backgroundTint="?attr/colorControlNormal"
+                app:srcCompat="@android:drawable/ic_menu_delete" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/addContactsButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:backgroundTint="?attr/colorControlNormal"
+
+                app:srcCompat="@color/colorPrimaryDark" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/addOrUpdateToDo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:srcCompat="@android:drawable/ic_input_add" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

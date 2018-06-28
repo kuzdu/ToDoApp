@@ -2,6 +2,7 @@ package rothkegel.com.todoapp.activities
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.toast
@@ -9,11 +10,21 @@ import rothkegel.com.todoapp.api.connector.ToDoServiceClient
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.api.connector.utils.User
 import rothkegel.com.todoapp.database.ToDoDBHelper
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Socket
+
+
+const val baseUrl = "http://192.168.178.20"
+const val baseUrlIp = "192.168.178.20"
+const val port = 8080
+
 
 open class ToDoAbstractActivity : AppCompatActivity() {
 
 
     internal val toDoDetailUpdateRequestCode = 10
+    internal val toDoDetailAddRequestCode = 11
     internal val toDoIdentifier = "toDoIdentifier"
     internal val removedToDoIdentifier = "removedToDoIdentifier"
 
@@ -77,15 +88,15 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     open fun onToDosFetched(todos: Array<ToDo>?) {
-       // toast("Got ${todos?.size} ToDos")
+        // toast("Got ${todos?.size} ToDos")
     }
 
     open fun onLoggedInUser(loggedIn: Boolean?) {
-       // toast("Logged in $loggedIn")
+        // toast("Logged in $loggedIn")
     }
 
     fun onSingleTodoFetched(toDo: ToDo?) {
-       // toast("ToDo Name ${toDo?.name.toString()}")
+        // toast("ToDo Name ${toDo?.name.toString()}")
     }
 
     fun onError(error: Throwable) {
@@ -94,7 +105,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     fun onDeletedAllToDos(removed: Boolean?) {
-       // toast("Deleted: $removed")
+        // toast("Deleted: $removed")
     }
 
     open fun onToDoRemoved(removed: Boolean?) {
@@ -176,5 +187,25 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 }, { error ->
                     onError(error)
                 })
+    }
+
+    fun hasInternetConnection(): Single<Boolean> {
+        return Single.fromCallable {
+            try {
+                // Connect to Google DNS to check for connection
+                val timeoutMs = 1500
+                val socket = Socket()
+                val socketAddress = InetSocketAddress(baseUrlIp, port)
+
+                socket.connect(socketAddress, timeoutMs)
+                socket.close()
+
+                true
+            } catch (e: IOException) {
+                false
+            }
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 }

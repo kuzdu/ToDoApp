@@ -78,7 +78,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
     private fun goToToDoDetail() {
         val i = Intent(this, ToDoDetailActivity::class.java)
-        startActivityForResult(i, toDoDetailUpdateRequestCode)
+        startActivityForResult(i, toDoDetailAddRequestCode)
     }
 
     private fun goToToDoDetail(position: Int) {
@@ -136,6 +136,21 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onActivityResult(requestCode, resultCode, data)
 
 
+        if (requestCode == toDoDetailAddRequestCode) {
+            val toDoAsString = data?.getStringExtra(toDoIdentifier)
+
+            //update
+            if (!toDoAsString.isNullOrEmpty()) {
+                val gson = Gson()
+                val parsedToDo = gson.fromJson<ToDo>(toDoAsString, ToDo::class.java)
+
+                if (parsedToDo != null) {
+                    toDos.add(parsedToDo)
+                    setAdapter(this.toDos.toList())
+                }
+                return
+            }
+        }
         if (requestCode == toDoDetailUpdateRequestCode) {
             val toDoAsString = data?.getStringExtra(toDoIdentifier)
 
@@ -151,7 +166,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
             }
 
             //delete
-            val toDoId = data?.getIntExtra(removedToDoIdentifier,-1)
+            val toDoId = data?.getIntExtra(removedToDoIdentifier, -1)
 
             if (toDoId == null || toDoId == -1) {
                 return
