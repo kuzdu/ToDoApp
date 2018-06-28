@@ -24,7 +24,7 @@ class DateTool {
 
         fun isExpired(expiry: Long): Boolean {
             val now = DateTime().getMillis() / 1000
-            return now < expiry
+            return now > expiry
         }
     }
 }
