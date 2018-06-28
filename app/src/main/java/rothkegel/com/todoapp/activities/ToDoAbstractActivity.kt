@@ -220,6 +220,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
+
     fun removeAllAPIToDos() {
         ToDoServiceClient.removeAllToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

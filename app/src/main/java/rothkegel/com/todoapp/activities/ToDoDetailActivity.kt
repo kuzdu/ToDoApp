@@ -1,8 +1,13 @@
 package rothkegel.com.todoapp.activities
 
+import android.Manifest
 import android.app.Activity
+import android.content.ContentResolver
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.View
 import android.widget.DatePicker
 import android.widget.TextView
@@ -13,13 +18,13 @@ import org.jetbrains.anko.*
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.tools.DateTool
-import android.content.Intent
 
 
 class ToDoDetailActivity : ToDoAbstractActivity() {
 
-
     var toDo = ToDo()
+    val PERMISSIONS_REQUEST_READ_CONTACT = 1
+    val REQUEST_PICK_UP_CONTACT = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +34,8 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
+
+        loadContacts()
     }
 
     // general operations for to do details
@@ -205,5 +212,55 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             yesButton { removeToDoSQL(toDo.id) }
             noButton { }
         }.show()
+    }
+
+    //CHECK CONTACT PERMISSIONS
+    private fun loadContacts() {
+        var builder = StringBuilder()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                        Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS),
+                    PERMISSIONS_REQUEST_READ_CONTACT)
+            //callback onRequestPermissionsResult
+        } else {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE;
+            startActivityForResult(intent, REQUEST_PICK_UP_CONTACT)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_PICK_UP_CONTACT) {
+            if (resultCode == RESULT_OK) {
+
+                val contactData = data?.data
+                val resolver: ContentResolver = contentResolver;
+                val cursor = resolver.query(contactData, null, null, null,null)
+
+                if (cursor == null) {
+                    toast("Find no cursor")
+                    return
+                }
+
+                cursor.moveToFirst()
+                val number = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                toast(number)
+            }
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACT) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                loadContacts()
+            } else {
+                toast("Permission must be granted in order to display contacts information")
+            }
+        }
     }
 }
