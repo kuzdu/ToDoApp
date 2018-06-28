@@ -1,6 +1,8 @@
 package rothkegel.com.todoapp.activities
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils
@@ -26,6 +28,8 @@ class LoginActivity : ToDoAbstractActivity() {
     private fun checkInternetConnection() {
         showInternetCheckLoading(true)
         hasInternetConnection().subscribe { hasInternet ->
+            saveInternetStatus(hasInternet)
+
             if (!hasInternet) {
                 goToToDoList()
             }

@@ -149,15 +149,17 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     private fun onAddOrUpdateClickListener() {
 
         toDo.name = todo_name_action.text.toString()
+        toDo.description = todo_description_action.text.toString()
         toDo.done = todo_is_done_action.isChecked
         toDo.favourite = todo_is_favourite_action.isChecked
-        toDo.description = todo_description_action.text.toString()
 
         val expiryDateTime = todo_date.text.toString()
         if (expiryDateTime.isNotEmpty()) {
             val dateTime = "$expiryDateTime:00"
             toDo.expiry = DateTool.convertUnixtimeToDate(dateTime)
         }
+
+        //TODO: contacts fehlt noch
 
         if (toDo.id == -1) {
             insertToDoSQL(toDo)

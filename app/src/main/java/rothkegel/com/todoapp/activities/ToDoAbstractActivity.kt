@@ -1,5 +1,6 @@
 package rothkegel.com.todoapp.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import io.reactivex.Single
@@ -14,9 +15,7 @@ import rothkegel.com.todoapp.models.DatabaseToDo
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.util.*
-import java.util.Arrays.asList
-import java.util.Arrays.asList
+import android.content.SharedPreferences
 
 
 const val baseUrl = "http://192.168.178.20"
@@ -31,59 +30,14 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     internal val toDoDetailAddRequestCode = 11
     internal val toDoIdentifier = "toDoIdentifier"
     internal val removedToDoIdentifier = "removedToDoIdentifier"
+    private val HAS_INTERNET_PREFERENCE = "HAS_INTERNET_PREFERENCE"
+    private val HAS_INTERNET_KEY = "HAS_INTERNET_KEY"
 
     lateinit var toDoDBHelper: ToDoDBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         toDoDBHelper = ToDoDBHelper(this)
-
-
-        /*
-        val todo = DatabaseToDo()
-        todo.name = "Name"
-        todo.description = "This is a description"
-        todo.dueDate = "Date"
-        todo.favorite = true
-        todo.done = true
-        toDoDBHelper.insertToDo(todo)
-
-
-        val todos = toDoDBHelper.readAllTodos()
-        print(todos.first().toString())
-
-        for (todo in todos) {
-            Log.d("OUTPUT", todo.toString())
-        }*/
-        /*
-
-    //        val timestamp = DateTool.convertUnixtimeToDate("27/06/2013 13:31:00")
-    //        val timeString = DateTool.getDateTime(timestamp)
-    //        toast(timeString)
-
-        override fun onToDosFetched(toDos: Array<ToDo>?) {
-            super.onToDosFetched(toDos)
-
-        }*/
-
-        /* override fun onToDoAdded(toDo: ToDo?) {
-             super.onToDoAdded(toDo)
-
-             val updatedToDo = ToDo()
-             val updatedLocation = Location("New Home", LatLng(8.837, 50.18))
-             val updatedContacts = arrayOf("Frank", "Andy", "Tim")
-
-             updatedToDo.id = 1234
-             updatedToDo.name = "Testname"
-             updatedToDo.description = "New Updated Description"
-             updatedToDo.done = false
-             updatedToDo.expiry = 1
-             updatedToDo.favourite = false
-             updatedToDo.contacts = updatedContacts
-             updatedToDo.location = updatedLocation
-             updateToDo(updatedToDo, 1234)
-         }*/
     }
 
     //"adapters"
@@ -91,7 +45,32 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         val databaseToDo = DatabaseToDo(toDo)
         val successful = toDoDBHelper.insertToDo(databaseToDo)
         if (successful) {
-            addToDo(toDo)
+            if (loadInternetStatus()) {
+                addToDo(toDo)
+                return
+            }
+            onToDoAdded(toDo)
+        }
+    }
+
+
+    open fun loadInternetStatus(): Boolean {
+        val prefs = getSharedPreferences(HAS_INTERNET_PREFERENCE, Context.MODE_PRIVATE)
+        val restoredInternetStatus = prefs.getBoolean(HAS_INTERNET_KEY, true)
+        return restoredInternetStatus
+    }
+
+    open fun saveInternetStatus(hasInternet: Boolean) {
+        val editor = getSharedPreferences(HAS_INTERNET_PREFERENCE, Context.MODE_PRIVATE).edit()
+        editor.putBoolean(HAS_INTERNET_KEY, hasInternet)
+        editor.apply()
+    }
+
+    open fun fetchToDos() {
+        if (this.loadInternetStatus()) {
+            fetchToDosFromApi()
+        } else {
+            fetchToDosSQL()
         }
     }
 
@@ -99,23 +78,30 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         val databaseToDo = DatabaseToDo(toDo)
         val successful = toDoDBHelper.changeToDo(databaseToDo)
         if (successful) {
-            updateToDo(toDo)
+            if (loadInternetStatus()) {
+                updateToDo(toDo)
+                return
+            }
+            onToDoUpdated(toDo)
         }
     }
 
     open fun removeToDoSQL(toDoId: Int) {
         val successful = toDoDBHelper.deleteById(toDoId.toLong())
         if (successful) {
-            removeToDo(toDoId)
+            if (loadInternetStatus()) {
+                removeToDo(toDoId)
+                return
+            }
+            onToDoRemoved(true)
         }
     }
 
-    open fun fetchToDosSQL() {
+    private fun fetchToDosSQL() {
 
         val databaseToDos = toDoDBHelper.readAllTodos()
 
-
-        val toDos : MutableList<ToDo> = arrayListOf()
+        val toDos: MutableList<ToDo> = arrayListOf()
 
         for (databaseToDo in databaseToDos) {
             val toDo = ToDo()
@@ -173,7 +159,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
 
     //request
-    private fun fetchToDos() {
+    private fun fetchToDosFromApi() {
         ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->

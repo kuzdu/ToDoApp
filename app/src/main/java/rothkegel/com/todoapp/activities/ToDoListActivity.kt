@@ -21,9 +21,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_list_activity)
 
-
-        fetchToDosSQL()
-        //fetchToDos()
+        fetchToDos()
         setAddToDoClickListener()
     }
 
@@ -97,7 +95,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onToDoUpdated(toDo)
         if (toDo == null) return
         updateLocalToDosWith(toDo)
-        toast(getString(R.string.to_do_list_successful_update_message))
+        //toast(getString(R.string.to_do_list_successful_update_message))
     }
 
     override fun onToDosFetched(toDos: Array<ToDo>?) {
