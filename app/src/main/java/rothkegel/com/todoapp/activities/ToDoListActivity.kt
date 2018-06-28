@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.todo_list_activity.*
+import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.yesButton
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.tools.SortTool
-import com.google.gson.Gson
 
 
 class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
@@ -21,8 +23,20 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_list_activity)
 
+        showNoInternetWarning()
         fetchToDos()
         setAddToDoClickListener()
+    }
+
+    private fun showNoInternetWarning() {
+        if (hasInternet()) {
+            return
+        }
+
+        alert("Du hast keine Verbindung zur API. D.h. deine ToDos werden nur lokal auf deinem Gerät gespeichert.\n\n¯\\_(ツ)_/¯") {
+            title = "Keine Verbidung zur API"
+            yesButton {  }
+        }.show()
     }
 
     private fun setAddToDoClickListener() {

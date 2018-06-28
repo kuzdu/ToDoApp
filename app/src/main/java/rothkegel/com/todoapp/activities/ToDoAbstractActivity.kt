@@ -15,7 +15,6 @@ import rothkegel.com.todoapp.models.DatabaseToDo
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
-import android.content.SharedPreferences
 
 
 const val baseUrl = "http://192.168.178.20"
@@ -45,7 +44,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         val databaseToDo = DatabaseToDo(toDo)
         val successful = toDoDBHelper.insertToDo(databaseToDo)
         if (successful) {
-            if (loadInternetStatus()) {
+            if (hasInternet()) {
                 addToDo(toDo)
                 return
             }
@@ -54,7 +53,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
 
-    open fun loadInternetStatus(): Boolean {
+    open fun hasInternet(): Boolean {
         val prefs = getSharedPreferences(HAS_INTERNET_PREFERENCE, Context.MODE_PRIVATE)
         val restoredInternetStatus = prefs.getBoolean(HAS_INTERNET_KEY, true)
         return restoredInternetStatus
@@ -67,7 +66,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     open fun fetchToDos() {
-        if (this.loadInternetStatus()) {
+        if (this.hasInternet()) {
             fetchToDosFromApi()
         } else {
             fetchToDosSQL()
@@ -78,7 +77,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         val databaseToDo = DatabaseToDo(toDo)
         val successful = toDoDBHelper.changeToDo(databaseToDo)
         if (successful) {
-            if (loadInternetStatus()) {
+            if (hasInternet()) {
                 updateToDo(toDo)
                 return
             }
@@ -89,7 +88,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     open fun removeToDoSQL(toDoId: Int) {
         val successful = toDoDBHelper.deleteById(toDoId.toLong())
         if (successful) {
-            if (loadInternetStatus()) {
+            if (hasInternet()) {
                 removeToDo(toDoId)
                 return
             }
