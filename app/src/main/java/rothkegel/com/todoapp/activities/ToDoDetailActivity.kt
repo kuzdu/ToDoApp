@@ -24,15 +24,32 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_detail)
-
-        setToDo()
-
-
         updateUI()
         setToDoDateClickListener()
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
+    }
+
+    // general operations for to do details
+    private fun isNewToDo(): Boolean {
+        return toDo.id == -1
+    }
+
+    // UI operations
+    private fun updateUI() {
+        setToDo()
+
+        if (isNewToDo()) {
+            removeTodoButton.visibility = View.GONE
+            return
+        }
+
+        todo_name_action.setText(toDo.name, TextView.BufferType.EDITABLE)
+        todo_description_action.setText(toDo.description, TextView.BufferType.EDITABLE)
+        todo_date.setText(DateTool.getDateTime(toDo.expiry), TextView.BufferType.EDITABLE)
+        todo_is_done_action.isChecked = toDo.done
+        todo_is_favourite_action.isChecked = toDo.favourite
     }
 
     private fun setToDo() {
@@ -76,46 +93,31 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         }.show()
     }
 
-    private fun setToDoDateClickListener() {
-        todo_date.setOnClickListener {
-            alert {
+    private fun showDateDialog() {
+        alert {
 
-                isCancelable = false
+            isCancelable = false
 
-                lateinit var datePicker: DatePicker
+            lateinit var datePicker: DatePicker
 
-                customView {
-                    verticalLayout {
-                        datePicker = datePicker {
-                            minDate = System.currentTimeMillis()
-                        }
+            customView {
+                verticalLayout {
+                    datePicker = datePicker {
+                        minDate = System.currentTimeMillis()
                     }
                 }
+            }
 
-                yesButton {
-                    val parsedDate = "${datePicker.dayOfMonth}/${datePicker.month + 1}/${datePicker.year}"
-                    todo_date.setText(parsedDate, TextView.BufferType.EDITABLE)
-                    showTimeDialog()
-                }
-                noButton { }
-            }.show()
-        }
+            yesButton {
+                val parsedDate = "${datePicker.dayOfMonth}/${datePicker.month + 1}/${datePicker.year}"
+                todo_date.setText(parsedDate, TextView.BufferType.EDITABLE)
+                showTimeDialog()
+            }
+            noButton { }
+        }.show()
     }
 
-    private fun updateUI() {
-        if (isNewToDo()) {
-            removeTodoButton.visibility = View.GONE
-            return
-        }
-
-
-        todo_name_action.setText(toDo.name, TextView.BufferType.EDITABLE)
-        todo_description_action.setText(toDo.description, TextView.BufferType.EDITABLE)
-        todo_date.setText(DateTool.getDateTime(toDo.expiry), TextView.BufferType.EDITABLE)
-        todo_is_done_action.isChecked = toDo.done
-        todo_is_favourite_action.isChecked = toDo.favourite
-    }
-
+    // CLICK LISTENER
     private fun setAddContactsClickListener() {
         addContactsButton.setOnClickListener {
             //TODO muss noch Vorlesung anschauen
@@ -134,16 +136,42 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         }
     }
 
-    private fun isNewToDo(): Boolean {
-        return toDo.id == -1
+    private fun setToDoDateClickListener() {
+        todo_date.setOnClickListener {
+            showDateDialog()
+        }
     }
 
-    private fun onRemoveClickListener() {
-        alert("You really want to remove that ToDo?") {
-            title = "Remove ToDo"
-            yesButton { removeToDoSQL(toDo.id) }
-            noButton { }
-        }.show()
+    // FINISH DETAIL ACTIVITY
+    private fun finishDetailActivity(toDo: ToDo?) {
+        val resultIntent = Intent()
+        val gson = Gson()
+        resultIntent.putExtra(toDoIdentifier, gson.toJson(toDo))
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+    }
+
+    // ON RESPONSE METHODS
+    override fun onToDoRemoved(removed: Boolean?) {
+        super.onToDoRemoved(removed)
+        if (removed != null && removed) {
+            val resultIntent = Intent()
+            resultIntent.putExtra(removedToDoIdentifier, toDo.id)
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
+        } else {
+            toast("Beim Löschen ist ein Fehler aufgetreten. - ¯\\_(ツ)_/¯")
+        }
+    }
+
+    override fun onToDoUpdated(toDo: ToDo?) {
+        super.onToDoUpdated(toDo)
+        finishDetailActivity(toDo)
+    }
+
+    override fun onToDoAdded(toDo: ToDo?) {
+        super.onToDoAdded(toDo)
+        finishDetailActivity(toDo)
     }
 
     private fun onAddOrUpdateClickListener() {
@@ -171,34 +199,11 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         }
     }
 
-    override fun onToDoRemoved(removed: Boolean?) {
-        super.onToDoRemoved(removed)
-        if (removed != null && removed) {
-            val resultIntent = Intent()
-            resultIntent.putExtra(removedToDoIdentifier, toDo.id)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
-        } else {
-            toast("Beim Löschen ist ein Fehler aufgetreten. - ¯\\_(ツ)_/¯")
-        }
+    private fun onRemoveClickListener() {
+        alert(getString(R.string.to_do_detail_want_remove_to_do_message)) {
+            title = getString(R.string.to_do_detail_want_remove_to_do_title)
+            yesButton { removeToDoSQL(toDo.id) }
+            noButton { }
+        }.show()
     }
-
-    override fun onToDoUpdated(toDo: ToDo?) {
-        super.onToDoUpdated(toDo)
-        finishDetailActivitiy(toDo)
-    }
-
-    override fun onToDoAdded(toDo: ToDo?) {
-        super.onToDoAdded(toDo)
-        finishDetailActivitiy(toDo)
-    }
-
-    private fun finishDetailActivitiy(toDo: ToDo?) {
-        val resultIntent = Intent()
-        val gson = Gson()
-        resultIntent.putExtra(toDoIdentifier, gson.toJson(toDo))
-        setResult(Activity.RESULT_OK, resultIntent)
-        finish()
-    }
-
 }

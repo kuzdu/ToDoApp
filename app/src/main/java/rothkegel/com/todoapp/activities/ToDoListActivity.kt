@@ -30,6 +30,19 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         setAddToDoClickListener()
     }
 
+    //interface implements
+    override fun onDoneClicked(toDo: ToDo) {
+        updateToDoSQL(toDo)
+    }
+
+    override fun onFavouriteClicked(toDo: ToDo) {
+        updateToDoSQL(toDo)
+    }
+
+    override fun onToDoItemClicked(position: Int) {
+        goToToDoDetail(position)
+    }
+
     private fun showNoInternetWarning() {
         if (hasInternet()) {
             return
@@ -41,12 +54,44 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         }.show()
     }
 
+    // CLICK LISTENER
     private fun setAddToDoClickListener() {
         addToDoActionButton.setOnClickListener {
             goToToDoDetail()
         }
     }
 
+    //SYNCING METHODS
+    private fun syncLocalToDos(isRemoved: Boolean?) {
+        triesToRemoveAllToDos += 1
+        if (isRemoved != null && isRemoved) {
+            toast("Alle Web-ToDos gelöscht - starte Synchronisation")
+            sendLocalToDosToWeb()
+            return
+        }
+
+        //fallback
+        if (triesToRemoveAllToDos > 2) {
+            toast("3 Mal versucht alle ToDos zu löschen. Es hat nicht funktioniert.")
+            return
+        }
+        removeAllAPIToDos()
+    }
+
+    private fun sendLocalToDosToWeb() {
+        val localToDos = getToDosSQL()
+        if (localToDos.isEmpty()) {
+            return
+        }
+        syncRequests = localToDos.size
+
+        for (localToDo in localToDos) {
+            addToDo(localToDo)
+        }
+    }
+
+
+    // OPTIONS MENU
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.sort_menu, menu)
@@ -80,19 +125,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         return super.onOptionsItemSelected(item)
     }
 
-    //interface implements
-    override fun onDoneClicked(toDo: ToDo) {
-        updateToDoSQL(toDo)
-    }
-
-    override fun onFavouriteClicked(toDo: ToDo) {
-        updateToDoSQL(toDo)
-    }
-
-    override fun onToDoItemClicked(position: Int) {
-        goToToDoDetail(position)
-    }
-
+    // GO TO NEXT DETAIL
     private fun goToToDoDetail() {
         val i = Intent(this, ToDoDetailActivity::class.java)
         startActivityForResult(i, toDoDetailAddRequestCode)
@@ -106,7 +139,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         startActivityForResult(i, toDoDetailUpdateRequestCode)
     }
 
-    //api - on response
+    //ON RESPONSE - can called by sql and api
     override fun onToDoUpdated(toDo: ToDo?) {
         super.onToDoUpdated(toDo)
         if (toDo == null) return
@@ -115,21 +148,9 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     }
 
 
-    override fun onRemoveAllAPIToDos(removed: Boolean?) {
-        super.onRemoveAllAPIToDos(removed)
-
-        triesToRemoveAllToDos += 1
-        if (removed != null && removed) {
-            toast("Alle Web-ToDos gelöscht - starte Synchronisation")
-            sendLocalToDosToWeb()
-            return
-        }
-
-        if (triesToRemoveAllToDos > 2) {
-            toast("3 Mal versucht alle ToDos zu löschen. Es hat nicht funktioniert.")
-            return
-        }
-        removeAllAPIToDos()
+    override fun onRemoveAllAPIToDos(isRemoved: Boolean?) {
+        super.onRemoveAllAPIToDos(isRemoved)
+        syncLocalToDos(isRemoved)
     }
 
     override fun onToDosFetched(toDos: Array<ToDo>?) {
@@ -160,29 +181,17 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         setAdapter(this.toDos.toList())
     }
 
-    private fun sendLocalToDosToWeb() {
-        val localToDos = getToDosSQL()
-        if (localToDos.isEmpty()) {
-            return
-        }
-        syncRequests = localToDos.size
-
-        for (localToDo in localToDos) {
-            addToDo(localToDo)
-        }
-    }
-
     override fun onToDoAdded(toDo: ToDo?) {
         super.onToDoAdded(toDo)
 
         if (toDo == null) {
-            toast("Unbekannter Fehler: Leeres ToDo zurück bekommen.")
+            toast(getString(R.string.to_do_list_empty_to_do_error_message))
             return
         }
 
         val successFul = toDoDBHelper.deleteById(toDo.id.toLong())
         if (!successFul) {
-            toast("Unbekannter Fehler: DB-ToDo konnte nicht gelöscht werden ${toDo.id}")
+            toast(getString(R.string.to_do_list_to_do_not_find_in_db_error_message) + toDo.id)
             return
         }
 
@@ -195,6 +204,8 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     }
 
 
+
+    // RECYCLER VIEW
     private fun setAdapter(toDos: List<ToDo>) {
         val adapter = ToDoListAdapter(ArrayList(toDos.toList()), this)
         todo_list_items.adapter = adapter
@@ -202,6 +213,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         todo_list_items.adapter.notifyDataSetChanged()
     }
 
+    // REFERSH OPERATIONS FOR RECYCLER VIEW
     private fun updateLocalToDosWith(toDo: ToDo) {
         val foundToDo = toDos.find { t -> t.id == toDo.id } ?: return
 
@@ -260,9 +272,6 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
                 return
             }
             removeLocalToDoWith(toDoId)
-
-
         }
-        toast("Refreshed the list")
     }
 }
