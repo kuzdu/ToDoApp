@@ -10,9 +10,13 @@ import rothkegel.com.todoapp.api.connector.ToDoServiceClient
 import rothkegel.com.todoapp.api.connector.utils.ToDo
 import rothkegel.com.todoapp.api.connector.utils.User
 import rothkegel.com.todoapp.database.ToDoDBHelper
+import rothkegel.com.todoapp.models.DatabaseToDo
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.*
+import java.util.Arrays.asList
+import java.util.Arrays.asList
 
 
 const val baseUrl = "http://192.168.178.20"
@@ -34,9 +38,6 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         toDoDBHelper = ToDoDBHelper(this)
-
-
-
 
 
         /*
@@ -85,16 +86,55 @@ open class ToDoAbstractActivity : AppCompatActivity() {
          }*/
     }
 
-    //"adapter"
-
+    //"adapters"
     open fun insertToDoSQL(toDo: ToDo) {
-
-
-
-//        toDoDBHelper.insertToDo()
+        val databaseToDo = DatabaseToDo(toDo)
+        val successful = toDoDBHelper.insertToDo(databaseToDo)
+        if (successful) {
+            addToDo(toDo)
+        }
     }
 
+    open fun updateToDoSQL(toDo: ToDo) {
+        val databaseToDo = DatabaseToDo(toDo)
+        val successful = toDoDBHelper.changeToDo(databaseToDo)
+        if (successful) {
+            updateToDo(toDo)
+        }
+    }
 
+    open fun removeToDoSQL(toDoId: Int) {
+        val successful = toDoDBHelper.deleteById(toDoId.toLong())
+        if (successful) {
+            removeToDo(toDoId)
+        }
+    }
+
+    open fun fetchToDosSQL() {
+
+        val databaseToDos = toDoDBHelper.readAllTodos()
+
+
+        val toDos : MutableList<ToDo> = arrayListOf()
+
+        for (databaseToDo in databaseToDos) {
+            val toDo = ToDo()
+            toDo.id = databaseToDo.id.toInt()
+            toDo.name = databaseToDo.name
+            toDo.description = databaseToDo.description
+            toDo.favourite = databaseToDo.favourite
+            toDo.done = databaseToDo.done
+            toDo.expiry = databaseToDo.expiry
+
+
+            val contacts = databaseToDo.contacts
+            if (!contacts.isNullOrEmpty()) {
+                toDo.contacts = databaseToDo.contacts.split("|").toTypedArray()
+            }
+            toDos.add(toDo)
+        }
+        onToDosFetched(toDos.toTypedArray())
+    }
 
 
     //listener
@@ -102,8 +142,8 @@ open class ToDoAbstractActivity : AppCompatActivity() {
         toast("Updated ${toDo?.name}")
     }
 
-    open fun onToDosFetched(todos: Array<ToDo>?) {
-        // toast("Got ${todos?.size} ToDos")
+    open fun onToDosFetched(toDos: Array<ToDo>?) {
+        // toast("Got ${toDos?.size} ToDos")
     }
 
     open fun onLoggedInUser(loggedIn: Boolean?) {
@@ -133,7 +173,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
 
     //request
-    open fun fetchToDos() {
+    private fun fetchToDos() {
         ToDoServiceClient.fetchToDos().observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
@@ -174,7 +214,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     }
 
-    fun removeToDo(id: Int) {
+    private fun removeToDo(id: Int) {
         ToDoServiceClient.removeToDo(id).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
@@ -184,7 +224,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    fun addToDo(toDo: ToDo) {
+    private fun addToDo(toDo: ToDo) {
         ToDoServiceClient.addToDo(toDo).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
@@ -194,7 +234,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
                 })
     }
 
-    fun updateToDo(toDo: ToDo) {
+    private fun updateToDo(toDo: ToDo) {
         ToDoServiceClient.updateToDo(toDo, toDo.id).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->

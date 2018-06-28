@@ -20,7 +20,10 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_list_activity)
-        fetchToDos()
+
+
+        fetchToDosSQL()
+        //fetchToDos()
         setAddToDoClickListener()
     }
 
@@ -65,11 +68,11 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
     //interface implements
     override fun onDoneClicked(toDo: ToDo) {
-        updateToDo(toDo)
+        updateToDoSQL(toDo)
     }
 
     override fun onFavouriteClicked(toDo: ToDo) {
-        updateToDo(toDo)
+        updateToDoSQL(toDo)
     }
 
     override fun onToDoItemClicked(position: Int) {

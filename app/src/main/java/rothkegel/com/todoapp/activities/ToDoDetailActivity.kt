@@ -141,7 +141,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     private fun onRemoveClickListener() {
         alert("You really want to remove that ToDo?") {
             title = "Remove ToDo"
-            yesButton { removeToDo(toDo.id) }
+            yesButton { removeToDoSQL(toDo.id) }
             noButton { }
         }.show()
     }
@@ -160,9 +160,9 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         }
 
         if (toDo.id == -1) {
-            addToDo(toDo)
+            insertToDoSQL(toDo)
         } else {
-            updateToDo(toDo)
+            updateToDoSQL(toDo)
         }
     }
 
