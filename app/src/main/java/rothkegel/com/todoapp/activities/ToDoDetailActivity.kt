@@ -1,13 +1,17 @@
 package rothkegel.com.todoapp.activities
 
 import android.Manifest
+import android.accounts.AccountManager
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
@@ -16,6 +20,7 @@ import android.widget.TimePicker
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.contact_item.view.*
 import kotlinx.android.synthetic.main.todo_detail.*
+import kotlinx.android.synthetic.main.todo_item.*
 import org.jetbrains.anko.*
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.ToDo
@@ -228,11 +233,33 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             //callback onRequestPermissionsResult
         } else {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE;
+            intent.type = ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
             startActivityForResult(intent, REQUEST_PICK_UP_CONTACT)
         }
     }
 
+
+    private fun getCursor(data: Uri?): Cursor? {
+        val contactData = data
+        val resolver: ContentResolver = contentResolver;
+        val cursor = resolver.query(contactData, null, null, null, null)
+
+        if (cursor == null) {
+            toast("Find no cursor")
+            return null
+        }
+        return cursor
+    }
+
+
+    private interface ProfileQuery {
+        companion object {
+            val PROJECTION = arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS, ContactsContract.CommonDataKinds.Email.IS_PRIMARY)
+
+            val ADDRESS = 0
+            val IS_PRIMARY = 1
+        }
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -240,23 +267,16 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         if (requestCode == REQUEST_PICK_UP_CONTACT) {
             if (resultCode == RESULT_OK) {
 
+                val cursor = getCursor(data?.data)
 
-                val contactData = data?.data
-                val resolver: ContentResolver = contentResolver;
-                val cursor = resolver.query(contactData, null, null, null, null)
 
-                if (cursor == null) {
-                    toast("Find no cursor")
-                    return
-                }
+                cursor?.moveToFirst()
 
-                cursor.moveToFirst()
-                val test = cursor.columnCount
+                val mailAddress = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
+                val phoneNumber = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                val name = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val contactId = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
 
-                val phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                val mailAddress = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
-                val name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val contactId = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
 
                 val view = LayoutInflater.from(applicationContext).inflate(R.layout.contact_item, null)
 
@@ -277,6 +297,11 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                     return
                 }
 
+                if (contactId == null) {
+                    toast("Fehler - keine Kontakt-Id gefunden")
+                    return
+                }
+
                 contactIds.add(contactId)
                 this.toDo.contacts = contactIds.toTypedArray()
 
@@ -286,9 +311,27 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                     contactList.removeView(view)
                 }
 
+                val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
+                val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
+
                 view.contactName.text = name
                 view.phoneNumber.text = phoneNumber
+                view.phoneNumber.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phoneNumber"))
+                    intent.putExtra("sms_body", "Hallo ich bin das Todo \"{$toDoName}\" - {$toDoDescription}")
+                    startActivity(intent)
+                }
+
                 view.mailAddress.text = mailAddress
+
+                view.mailAddress.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_SENDTO)
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_EMAIL, mailAddress)
+                    intent.putExtra(Intent.EXTRA_SUBJECT, toDoName)
+                    intent.putExtra(Intent.EXTRA_TEXT, toDoDescription)
+                    startActivity(Intent.createChooser(intent, "Email senden"))
+                }
 
                 contactList.addView(view)
             }
