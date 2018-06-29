@@ -213,7 +213,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
         todo_list_items.adapter.notifyDataSetChanged()
     }
 
-    // REFERSH OPERATIONS FOR RECYCLER VIEW
+    // REFRESH OPERATIONS FOR RECYCLER VIEW
     private fun updateLocalToDosWith(toDo: ToDo) {
         val foundToDo = toDos.find { t -> t.id == toDo.id } ?: return
 

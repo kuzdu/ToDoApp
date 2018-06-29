@@ -8,11 +8,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
 import android.widget.TextView
 import android.widget.TimePicker
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.contact_item.view.*
 import kotlinx.android.synthetic.main.todo_detail.*
 import org.jetbrains.anko.*
 import rothkegel.com.todoapp.R
@@ -26,6 +28,8 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     val PERMISSIONS_REQUEST_READ_CONTACT = 1
     val REQUEST_PICK_UP_CONTACT = 2
 
+    val contactIds = arrayListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.todo_detail)
@@ -34,9 +38,8 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
-
-        loadContacts()
     }
+
 
     // general operations for to do details
     private fun isNewToDo(): Boolean {
@@ -127,7 +130,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     // CLICK LISTENER
     private fun setAddContactsClickListener() {
         addContactsButton.setOnClickListener {
-            //TODO muss noch Vorlesung anschauen
+            onAddContactsClickListener()
         }
     }
 
@@ -215,7 +218,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     }
 
     //CHECK CONTACT PERMISSIONS
-    private fun loadContacts() {
+    private fun onAddContactsClickListener() {
         var builder = StringBuilder()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
@@ -230,15 +233,17 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         }
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_PICK_UP_CONTACT) {
             if (resultCode == RESULT_OK) {
 
+
                 val contactData = data?.data
                 val resolver: ContentResolver = contentResolver;
-                val cursor = resolver.query(contactData, null, null, null,null)
+                val cursor = resolver.query(contactData, null, null, null, null)
 
                 if (cursor == null) {
                     toast("Find no cursor")
@@ -246,18 +251,55 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                 }
 
                 cursor.moveToFirst()
-                val number = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                toast(number)
+                val test = cursor.columnCount
+
+                val phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                val mailAddress = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
+                val name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val contactId = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
+
+                val view = LayoutInflater.from(applicationContext).inflate(R.layout.contact_item, null)
+
+                if (phoneNumber.isNullOrEmpty()) {
+                    view.phoneNumber.visibility = View.GONE
+                }
+
+                if (mailAddress.isNullOrEmpty()) {
+                    view.mailAddress.visibility = View.GONE
+                }
+
+                if (name.isNullOrEmpty()) {
+                    view.contactName.visibility = View.GONE
+                }
+
+                if (contactId.isNullOrEmpty()) {
+                    toast("Fehler - Es konnte keine Kontakt-ID gefunden werden.")
+                    return
+                }
+
+                contactIds.add(contactId)
+                this.toDo.contacts = contactIds.toTypedArray()
+
+                view.removeContactButton.setOnClickListener {
+                    contactIds.remove(contactId)
+                    this.toDo.contacts = contactIds.toTypedArray()
+                    contactList.removeView(view)
+                }
+
+                view.contactName.text = name
+                view.phoneNumber.text = phoneNumber
+                view.mailAddress.text = mailAddress
+
+                contactList.addView(view)
             }
         }
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACT) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadContacts()
+                onAddContactsClickListener()
             } else {
                 toast("Permission must be granted in order to display contacts information")
             }

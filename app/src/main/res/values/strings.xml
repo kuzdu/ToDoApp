@@ -20,9 +20,10 @@
     <string name="todo_detail_name_desc">Name</string>
     <string name="todo_detail_done_desc">Als erledigt markieren?</string>
     <string name="todo_detail_favourite_desc">Als favorit markieren?</string>
-    <string name="todo_details_contacts_title">TextView</string>
+    <string name="todo_details_contacts_title">Verknüpfte Kontakte</string>
     <string name="to_do_list_empty_to_do_error_message">Fehler: Leeres ToDo zurück bekommen.</string>
     <string name="to_do_list_to_do_not_find_in_db_error_message">Fehler: DB-ToDo konnte nicht gelöscht werden</string>
     <string name="to_do_detail_want_remove_to_do_message">Möchtest du das ToDo wirklich löschen?</string>
     <string name="to_do_detail_want_remove_to_do_title">ToDo löschen</string>
+    <string name="contact_item_delete_button_action">Löschen</string>
 </resources>
