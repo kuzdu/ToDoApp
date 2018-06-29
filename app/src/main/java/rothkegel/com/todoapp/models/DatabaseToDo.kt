@@ -4,12 +4,12 @@ import rothkegel.com.todoapp.api.connector.utils.ToDo
 
 
 class DatabaseToDo {
-    var id:Long = -1
+    var id: Long = -1
     var name = ""
     var description = ""
     var favourite = false
     var done = false
-    var expiry:Long = -1
+    var expiry: Long = -1
     var contacts = ""
 
     override fun toString(): String {
@@ -34,5 +34,7 @@ class DatabaseToDo {
                 contactsString += "$contactID|"
             }
         }
+
+        this.contacts = contactsString
     }
 }

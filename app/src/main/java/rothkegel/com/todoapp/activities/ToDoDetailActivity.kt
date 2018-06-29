@@ -1,8 +1,8 @@
 package rothkegel.com.todoapp.activities
 
 import android.Manifest
-import android.accounts.AccountManager
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.DatePicker
@@ -20,7 +19,6 @@ import android.widget.TimePicker
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.contact_item.view.*
 import kotlinx.android.synthetic.main.todo_detail.*
-import kotlinx.android.synthetic.main.todo_item.*
 import org.jetbrains.anko.*
 import rothkegel.com.todoapp.R
 import rothkegel.com.todoapp.api.connector.utils.ToDo
@@ -32,6 +30,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     var toDo = ToDo()
     val PERMISSIONS_REQUEST_READ_CONTACT = 1
     val REQUEST_PICK_UP_CONTACT = 2
+    val PERMISSIONS_READ_ALL_CONTACTS = 3
 
     val contactIds = arrayListOf<String>()
 
@@ -43,6 +42,9 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
+
+
+        loadContacts()
     }
 
 
@@ -198,11 +200,14 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
 
         val expiryDateTime = todo_date.text.toString()
         if (expiryDateTime.isNotEmpty()) {
-            val dateTime = "$expiryDateTime:00"
+
+            var dateTime = expiryDateTime
+
+            if (expiryDateTime.length < 19) {
+                dateTime += ":00"
+            }
             toDo.expiry = DateTool.convertUnixtimeToDate(dateTime)
         }
-
-        //TODO: contacts fehlt noch
 
         if (toDo.id == -1) {
             val insertToDo = insertToDoSQL(toDo)
@@ -252,100 +257,147 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     }
 
 
-    private interface ProfileQuery {
-        companion object {
-            val PROJECTION = arrayOf(ContactsContract.CommonDataKinds.Email.ADDRESS, ContactsContract.CommonDataKinds.Email.IS_PRIMARY)
-
-            val ADDRESS = 0
-            val IS_PRIMARY = 1
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                                            grantResults: IntArray) {
+        if (requestCode == PERMISSIONS_READ_ALL_CONTACTS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                loadContacts()
+            } else {
+                toast("Fehler - kein Recht dazu")
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+
         if (requestCode == REQUEST_PICK_UP_CONTACT) {
             if (resultCode == RESULT_OK) {
 
                 val cursor = getCursor(data?.data)
-
-
                 cursor?.moveToFirst()
-
                 val mailAddress = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
                 val phoneNumber = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
                 val name = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val contactId = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
-
-
-                val view = LayoutInflater.from(applicationContext).inflate(R.layout.contact_item, null)
-
-                if (phoneNumber.isNullOrEmpty()) {
-                    view.phoneNumber.visibility = View.GONE
-                }
-
-                if (mailAddress.isNullOrEmpty()) {
-                    view.mailAddress.visibility = View.GONE
-                }
-
-                if (name.isNullOrEmpty()) {
-                    view.contactName.visibility = View.GONE
-                }
-
-                if (contactId.isNullOrEmpty()) {
-                    toast("Fehler - Es konnte keine Kontakt-ID gefunden werden.")
-                    return
-                }
-
-                if (contactId == null) {
-                    toast("Fehler - keine Kontakt-Id gefunden")
-                    return
-                }
-
-                contactIds.add(contactId)
-                this.toDo.contacts = contactIds.toTypedArray()
-
-                view.removeContactButton.setOnClickListener {
-                    contactIds.remove(contactId)
-                    this.toDo.contacts = contactIds.toTypedArray()
-                    contactList.removeView(view)
-                }
-
-                val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
-                val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
-
-                view.contactName.text = name
-                view.phoneNumber.text = phoneNumber
-                view.phoneNumber.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phoneNumber"))
-                    intent.putExtra("sms_body", "Hallo ich bin das Todo \"{$toDoName}\" - {$toDoDescription}")
-                    startActivity(intent)
-                }
-
-                view.mailAddress.text = mailAddress
-
-                view.mailAddress.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_SENDTO)
-                    intent.setType("text/plain");
-                    intent.putExtra(Intent.EXTRA_EMAIL, mailAddress)
-                    intent.putExtra(Intent.EXTRA_SUBJECT, toDoName)
-                    intent.putExtra(Intent.EXTRA_TEXT, toDoDescription)
-                    startActivity(Intent.createChooser(intent, "Email senden"))
-                }
-
-                contactList.addView(view)
+                addContactToList(phoneNumber, mailAddress, name, contactId)
             }
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACT) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onAddContactsClickListener()
-            } else {
-                toast("Permission must be granted in order to display contacts information")
+    private fun addContactToList(phoneNumber: String?, mailAddress: String?, name: String?, contactId: String?) {
+        val view = LayoutInflater.from(applicationContext).inflate(R.layout.contact_item, null)
+
+        if (phoneNumber.isNullOrEmpty()) {
+            view.phoneNumber.visibility = View.GONE
+        }
+
+        if (mailAddress.isNullOrEmpty()) {
+            view.mailAddress.visibility = View.GONE
+        }
+
+        if (name.isNullOrEmpty()) {
+            view.contactName.visibility = View.GONE
+        }
+
+        if (contactId.isNullOrEmpty()) {
+            toast("Fehler - Es konnte keine Kontakt-ID gefunden werden.")
+            return
+        }
+
+        if (contactId == null) {
+            toast("Fehler - keine Kontakt-Id gefunden")
+            return
+        }
+
+        contactIds.add(contactId)
+        this.toDo.contacts = contactIds.toTypedArray()
+
+        view.removeContactButton.setOnClickListener {
+            contactIds.remove(contactId)
+            this.toDo.contacts = contactIds.toTypedArray()
+            contactList.removeView(view)
+        }
+
+        val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
+        val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
+
+        view.contactName.text = name
+        view.phoneNumber.text = phoneNumber
+        view.phoneNumber.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phoneNumber"))
+            intent.putExtra("sms_body", "Hallo ich bin das Todo $toDoName - $toDoDescription")
+            startActivity(intent)
+        }
+
+        view.mailAddress.text = mailAddress
+
+        view.mailAddress.setOnClickListener {
+            val mailto = "mailto:bob@example.org" +
+                    "?cc=" + "alice@example.com" +
+                    "&subject=" + Uri.encode("test") +
+                    "&body=" + Uri.encode("TESTBody")
+
+            val emailIntent = Intent(Intent.ACTION_SENDTO)
+            emailIntent.data = Uri.parse(mailto)
+
+            try {
+                startActivity(emailIntent)
+            } catch (e: ActivityNotFoundException) {
+                toast("Es wurde keine App gefunden mit der du Mails verschicken kannst.")
             }
         }
+
+        contactList.addView(view)
+    }
+
+    private fun loadContacts() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                        Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), PERMISSIONS_READ_ALL_CONTACTS)
+        } else {
+            addExistingContacts()
+        }
+    }
+
+
+    private fun addExistingContacts() {
+        val toDoContacts = toDo.contacts ?: return
+
+        /*
+
+                val contactData = data
+        val resolver: ContentResolver = contentResolver;
+        val cursor = resolver.query(contactData, null, null, null, null)
+
+        if (cursor == null) {
+            toast("Find no cursor")
+            return null
+        }
+        return cursor
+         */
+
+        //   val cursor =  getCursor(data?.data)
+        val resolver: ContentResolver = contentResolver
+        val cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
+
+        if (cursor.count <= 0) {
+            toast("Fehler - keine Kontakte auf dem Telefon gefunden.")
+            return
+        }
+
+      /*  while (cursor.moveToNext()) {
+            val contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+            val name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            val phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            val mailAddress = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS))
+
+            if (toDoContacts.toList().contains(contactId)) {
+                addContactToList(phoneNumber, mailAddress, name, contactId)
+            }
+        }*/
+
+        cursor.close()
     }
 }
