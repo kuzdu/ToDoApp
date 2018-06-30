@@ -98,13 +98,15 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
 
             yesButton {
                 val parsedTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    "${timePicker.hour}:${timePicker.minute}"
+                    "${formattedDateTime(timePicker.hour)}:${formattedDateTime(timePicker.minute)}"
                 } else {
-                    "${timePicker.currentHour}:${timePicker.currentMinute}"
+                    "${formattedDateTime(timePicker.currentHour)}:${formattedDateTime(timePicker.currentMinute)}"
                 }
                 todo_date.setText("${todo_date.text} ${parsedTime}", TextView.BufferType.EDITABLE)
             }
-            noButton { }
+            noButton {
+                todo_date.setText("", TextView.BufferType.EDITABLE)
+            }
         }.show()
     }
 
@@ -124,7 +126,13 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             }
 
             yesButton {
-                val parsedDate = "${datePicker.dayOfMonth}/${datePicker.month + 1}/${datePicker.year}"
+
+                val dayOfMonth = formattedDateTime(datePicker.dayOfMonth)
+                val month = formattedDateTime(datePicker.month + 1)
+                val year = formattedDateTime(datePicker.year)
+
+                val parsedDate = "${dayOfMonth}/${month}/${year}"
+
                 todo_date.setText(parsedDate, TextView.BufferType.EDITABLE)
                 showTimeDialog()
             }
@@ -132,6 +140,13 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                 todo_date.setText("", TextView.BufferType.EDITABLE)
             }
         }.show()
+    }
+
+    private fun formattedDateTime(unit: Int): String {
+        if (unit < 10) {
+            return "0$unit"
+        }
+        return "$unit"
     }
 
     // CLICK LISTENER
@@ -192,6 +207,11 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     }
 
     private fun onAddOrUpdateClickListener() {
+
+        if (todo_name_action.text.toString().isNullOrEmpty() || todo_date.text.toString().isNullOrEmpty()) {
+            toast("Ein todo muss Name einen Namen und eine Zeitangabe haben.")
+            return
+        }
 
         toDo.name = todo_name_action.text.toString()
         toDo.description = todo_description_action.text.toString()
@@ -336,12 +356,14 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             contactList.removeView(view)
         }
 
-        val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
-        val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
 
         view.contactName.text = name
         view.phoneNumber.text = phoneNumber
         view.phoneNumber.setOnClickListener {
+            val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
+            val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
+
+
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("sms:$phoneNumber"))
             intent.putExtra("sms_body", "Hallo ich bin das Todo $toDoName - $toDoDescription")
             startActivity(intent)
@@ -350,6 +372,10 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         view.mailAddress.text = mailAddress
 
         view.mailAddress.setOnClickListener {
+
+            val toDoName = if (todo_name_action.text.toString().isNotEmpty()) todo_name_action.text.toString() else toDo.name
+            val toDoDescription = if (todo_description_action.text.toString().isNotEmpty()) todo_description_action.text.toString() else toDo.description
+
             val mailto = "mailto:$mailAddress" +
                     "?cc=" + "" +
                     "&subject=" + Uri.encode(toDoName) +

@@ -1,7 +1,9 @@
 package rothkegel.com.todoapp.activities
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +22,27 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     private var toDos: ArrayList<ToDo> = ArrayList()
     private var syncRequests = 0
     private var triesToRemoveAllToDos = 0
+
+
+    private var doubleBackToExitPressedOnce = false
+
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            if(Build.VERSION.SDK_INT in 16..20){
+                finishAffinity()
+            } else if(Build.VERSION.SDK_INT >= 21){
+                finishAndRemoveTask()
+            }
+
+            System.exit(0)
+            return
+        }
+
+        this.doubleBackToExitPressedOnce = true
+        toast("Klicke noch einmal zurück, um dich auszuloggen. Die App startet danach neu.")
+
+        Handler().postDelayed(Runnable { doubleBackToExitPressedOnce = false }, 2000)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +88,7 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
     private fun syncLocalToDos(isRemoved: Boolean?) {
         triesToRemoveAllToDos += 1
         if (isRemoved != null && isRemoved) {
-            toast("Alle Web-ToDos gelöscht - starte Synchronisation")
+            //toast("Alle Web-ToDos gelöscht - starte Synchronisation")
             sendLocalToDosToWeb()
             return
         }
@@ -199,10 +222,9 @@ class ToDoListActivity : ToDoAbstractActivity(), ClickListener {
 
         if (syncRequests <= 0) {
             fetchToDos()
-            toast("Alle lokalen ToDos wurde in die API eingepflegt.")
+        //    toast("Alle lokalen ToDos wurde in die API eingepflegt.")
         }
     }
-
 
 
     // RECYCLER VIEW

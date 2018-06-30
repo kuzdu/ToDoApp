@@ -156,7 +156,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
     //listener
     open fun onToDoUpdated(toDo: ToDo?) {
-        toast("Updated ${toDo?.name}")
+     //   toast("Updated ${toDo?.name}")
     }
 
     open fun onToDosFetched(toDos: Array<ToDo>?) {
@@ -190,7 +190,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     }
 
     open fun onToDoAdded(toDo: ToDo?) {
-        toast("Added ${toDo?.name}")
+    //    toast("Added ${toDo?.name}")
     }
 
     //request
