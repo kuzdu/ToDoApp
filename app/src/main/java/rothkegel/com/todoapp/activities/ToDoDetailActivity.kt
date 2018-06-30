@@ -277,10 +277,27 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
 
                 val cursor = getCursor(data?.data)
                 cursor?.moveToFirst()
-                val mailAddress = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
+
+                // val mailAddress = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
                 val phoneNumber = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
                 val name = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val contactId = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
+
+
+                if (contactId == null) {
+                    toast("Fehler - ID konnte für den Kontakt nicht gefunden werden.")
+                    return
+                }
+
+                val mailCursor = contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf(contactId), null)
+
+                var mailAddress = ""
+                while (mailCursor.moveToNext()) {
+                    mailAddress = mailCursor.getString(mailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+                }
+                mailCursor.close()
+
                 addContactToList(phoneNumber, mailAddress, name, contactId)
             }
         }
@@ -334,10 +351,9 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         view.mailAddress.text = mailAddress
 
         view.mailAddress.setOnClickListener {
-            val mailto = "mailto:bob@example.org" +
-                    "?cc=" + "alice@example.com" +
-                    "&subject=" + Uri.encode("test") +
-                    "&body=" + Uri.encode("TESTBody")
+            val mailto = "mailto:$mailAddress" +
+                    "&subject=" + Uri.encode(toDoName) +
+                    "&body=" + Uri.encode(toDoDescription)
 
             val emailIntent = Intent(Intent.ACTION_SENDTO)
             emailIntent.data = Uri.parse(mailto)
@@ -365,7 +381,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     private fun addExistingContacts() {
         val toDoContacts = toDo.contacts ?: return
 
-        val resolver: ContentResolver = contentResolver
+        val resolver = contentResolver
         val cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
 
         if (cursor.count <= 0) {
@@ -373,23 +389,35 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             return
         }
 
-        val cursorPhone = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null)
+        var mailAddress = ""
 
-        val doubleContactEntries = arrayListOf<String>()
-        if (cursorPhone.count > 0) {
-            while (cursorPhone.moveToNext()) {
+        val phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null)
+        val preventSameContactEntries = arrayListOf<String>()
 
-                val contactId = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-                val name = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val phoneNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                val mailAddress = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS))
+        while (phoneCursor.moveToNext()) {
 
-                if (toDoContacts.toList().contains(contactId) && !doubleContactEntries.contains(contactId)) {
-                    doubleContactEntries.add(contactId)
-                    addContactToList(phoneNumber, mailAddress, name, contactId)
-                }
+            val contactId = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+
+            if (!toDoContacts.toList().contains(contactId)) {
+                continue
+            }
+
+            val name = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            val phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+            val mailCursor = contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", arrayOf<String>(contactId), null)
+
+            while (mailCursor.moveToNext()) {
+                mailAddress = mailCursor.getString(mailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+            }
+            mailCursor.close()
+
+            if (toDoContacts.toList().contains(contactId) && !preventSameContactEntries.contains(contactId)) {
+                preventSameContactEntries.add(contactId)
+                addContactToList(phoneNumber, mailAddress, name, contactId)
             }
         }
-        cursorPhone.close()
+        phoneCursor.close()
     }
 }
