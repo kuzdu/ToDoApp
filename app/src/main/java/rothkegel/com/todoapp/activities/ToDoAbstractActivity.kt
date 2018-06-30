@@ -118,7 +118,8 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
             val contacts = databaseToDo.contacts
             if (!contacts.isNullOrEmpty()) {
-                toDo.contacts = databaseToDo.contacts.split("|").toTypedArray()
+                val splittedList = databaseToDo.contacts.split("|")
+                toDo.contacts = splittedList.toTypedArray()
             }
             toDos.add(toDo)
         }

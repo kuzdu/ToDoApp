@@ -365,20 +365,6 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     private fun addExistingContacts() {
         val toDoContacts = toDo.contacts ?: return
 
-        /*
-
-                val contactData = data
-        val resolver: ContentResolver = contentResolver;
-        val cursor = resolver.query(contactData, null, null, null, null)
-
-        if (cursor == null) {
-            toast("Find no cursor")
-            return null
-        }
-        return cursor
-         */
-
-        //   val cursor =  getCursor(data?.data)
         val resolver: ContentResolver = contentResolver
         val cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
 
@@ -387,17 +373,23 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
             return
         }
 
-      /*  while (cursor.moveToNext()) {
-            val contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-            val name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-            val phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-            val mailAddress = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS))
+        val cursorPhone = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null)
 
-            if (toDoContacts.toList().contains(contactId)) {
-                addContactToList(phoneNumber, mailAddress, name, contactId)
+        val doubleContactEntries = arrayListOf<String>()
+        if (cursorPhone.count > 0) {
+            while (cursorPhone.moveToNext()) {
+
+                val contactId = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                val name = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val phoneNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                val mailAddress = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS))
+
+                if (toDoContacts.toList().contains(contactId) && !doubleContactEntries.contains(contactId)) {
+                    doubleContactEntries.add(contactId)
+                    addContactToList(phoneNumber, mailAddress, name, contactId)
+                }
             }
-        }*/
-
-        cursor.close()
+        }
+        cursorPhone.close()
     }
 }
