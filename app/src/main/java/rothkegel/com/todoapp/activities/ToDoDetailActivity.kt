@@ -42,8 +42,6 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
-
-
         loadContacts()
     }
 
@@ -282,7 +280,6 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                 val phoneNumber = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
                 val name = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                 val contactId = cursor?.getString(cursor?.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Identity.CONTACT_ID))
-
 
                 if (contactId == null) {
                     toast("Fehler - ID konnte für den Kontakt nicht gefunden werden.")
