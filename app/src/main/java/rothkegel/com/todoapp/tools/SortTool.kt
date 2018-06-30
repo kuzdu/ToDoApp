@@ -24,9 +24,9 @@ class SortTool {
 
         private fun sortByDone(toDos: ArrayList<ToDo>, isDone: Boolean, favouriteBeforeExpiry: Boolean): ArrayList<ToDo> {
             return if (favouriteBeforeExpiry) {
-                ArrayList(toDos.sortedWith(compareBy({ it.done == isDone }, { it.favourite }, { it.expiry })).reversed())
+                ArrayList(toDos.sortedWith(compareBy({ it.done == !isDone }, { !it.favourite }, { it.expiry })))
             } else {
-                ArrayList(toDos.sortedWith(compareBy({ it.done == isDone }, { it.expiry }, { it.favourite })).reversed())
+                ArrayList(toDos.sortedWith(compareBy({ it.done == !isDone }, { it.expiry }, { it.favourite })))
             }
         }
     }

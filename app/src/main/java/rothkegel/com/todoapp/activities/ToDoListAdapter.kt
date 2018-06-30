@@ -41,11 +41,12 @@ class ToDoListAdapter(private val toDos: ArrayList<ToDo>, private val context: C
 
 
         if (DateTool.isExpired(toDos[position].expiry) && !toDos[position].done) {
-            holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+            holder?.date?.text = DateTool.getDateTime(toDos[position].expiry) + "(spät dran!)"
+            holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorRed))
         } else {
+            holder?.date?.text = DateTool.getDateTime(toDos[position].expiry)
             holder?.date?.setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
         }
-        holder?.date?.text = DateTool.getDateTime(toDos[position].expiry)
         holder?.name?.text = toDos[position].name
         holder?.description?.text = toDos[position].description
 
