@@ -352,6 +352,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
 
         view.mailAddress.setOnClickListener {
             val mailto = "mailto:$mailAddress" +
+                    "?cc=" + "" +
                     "&subject=" + Uri.encode(toDoName) +
                     "&body=" + Uri.encode(toDoDescription)
 

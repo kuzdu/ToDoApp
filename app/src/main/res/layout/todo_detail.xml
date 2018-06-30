@@ -81,7 +81,7 @@
             android:gravity="bottom"
             android:orientation="vertical">
 
-
+            <!-- make red! or clear color -->
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/removeTodoButton"
                 android:layout_width="50dp"
@@ -100,9 +100,9 @@
                 android:layout_marginTop="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:backgroundTint="?attr/colorControlNormal"
-
-                app:srcCompat="@color/colorPrimaryDark" />
+                app:backgroundTint="@color/colorBlue"
+                android:src="@drawable/ic_action_contact"
+                app:srcCompat="@color/colorBlue" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/addOrUpdateToDo"
