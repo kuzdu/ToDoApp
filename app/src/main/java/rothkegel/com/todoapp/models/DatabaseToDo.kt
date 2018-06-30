@@ -4,7 +4,7 @@ import rothkegel.com.todoapp.api.connector.utils.ToDo
 
 
 class DatabaseToDo {
-    var id: Long = -1
+    var id: Long? = null
     var name = ""
     var description = ""
     var favourite = false

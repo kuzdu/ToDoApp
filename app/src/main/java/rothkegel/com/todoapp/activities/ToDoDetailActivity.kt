@@ -128,7 +128,9 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
                 todo_date.setText(parsedDate, TextView.BufferType.EDITABLE)
                 showTimeDialog()
             }
-            noButton { }
+            noButton {
+                todo_date.setText("", TextView.BufferType.EDITABLE)
+            }
         }.show()
     }
 

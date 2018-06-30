@@ -30,12 +30,14 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
 
     @Throws(SQLiteConstraintException::class)
-    fun insertToDo(databaseToDo: DatabaseToDo): Boolean {
+    fun insertToDo(databaseToDo: DatabaseToDo): Long {
         val db = writableDatabase
 
         val values = ContentValues()
-        if (databaseToDo.id.toInt() != -1) {
+        if (databaseToDo.id?.toInt() != -1) {
             values.put(DBContract.TodoEntry.COLUMN_ID,databaseToDo.id)
+        } else {
+            databaseToDo.id = null
         }
         values.put(DBContract.TodoEntry.COLUMN_NAME, databaseToDo.name)
         values.put(DBContract.TodoEntry.COLUMN_DESCRIPTION, databaseToDo.description)
@@ -44,7 +46,7 @@ class ToDoDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         values.put(DBContract.TodoEntry.COLUMN_EXPIRY, databaseToDo.expiry)
         values.put(DBContract.TodoEntry.COLUMN_CONTACTS, databaseToDo.contacts)
 
-        return db.insert(DBContract.TodoEntry.TABLE_NAME, null, values) > 0
+        return db.insert(DBContract.TodoEntry.TABLE_NAME, null, values)
     }
 
     @Throws(SQLiteConstraintException::class)

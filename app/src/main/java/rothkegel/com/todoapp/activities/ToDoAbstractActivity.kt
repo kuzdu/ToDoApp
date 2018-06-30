@@ -42,7 +42,10 @@ open class ToDoAbstractActivity : AppCompatActivity() {
     //"adapters"
     open fun insertToDoSQL(toDo: ToDo): ToDo? {
         val databaseToDo = DatabaseToDo(toDo)
-        if (toDoDBHelper.insertToDo(databaseToDo)) {
+
+        val databaseToDoId = toDoDBHelper.insertToDo(databaseToDo)
+        if (databaseToDoId > 0) {
+            toDo.id = databaseToDoId.toInt()
             return toDo
         }
         return null
@@ -108,7 +111,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
         for (databaseToDo in databaseToDos) {
             val toDo = ToDo()
-            toDo.id = databaseToDo.id.toInt()
+            toDo.id = databaseToDo.id!!.toInt()
             toDo.name = databaseToDo.name
             toDo.description = databaseToDo.description
             toDo.favourite = databaseToDo.favourite
@@ -134,7 +137,7 @@ open class ToDoAbstractActivity : AppCompatActivity() {
 
         for (databaseToDo in databaseToDos) {
             val toDo = ToDo()
-            toDo.id = databaseToDo.id.toInt()
+            toDo.id = databaseToDo.id!!.toInt()
             toDo.name = databaseToDo.name
             toDo.description = databaseToDo.description
             toDo.favourite = databaseToDo.favourite
