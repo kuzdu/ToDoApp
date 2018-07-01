@@ -130,9 +130,9 @@ class LoginActivity : ToDoAbstractActivity() {
 
     private fun showInternetCheckLoading(loading: Boolean) {
         if (loading) {
-            login_welcome_message.visibility = View.INVISIBLE
-            login_email_address.visibility = View.INVISIBLE
-            login_password.visibility = View.INVISIBLE
+            login_welcome_message.visibility = View.GONE
+            login_email_address.visibility = View.GONE
+            login_password.visibility = View.GONE
             login_error_message.visibility = View.GONE
 
             login_progress_bar.visibility = View.VISIBLE

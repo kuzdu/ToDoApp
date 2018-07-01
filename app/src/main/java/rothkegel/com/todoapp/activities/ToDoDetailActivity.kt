@@ -42,7 +42,10 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
         setAddContactsClickListener()
         setRemoveClickListener()
         setAddOrUpdateClickListener()
-        loadContacts()
+
+        if (!needContactPermission()) {
+            loadContacts()
+        }
     }
 
 
@@ -251,8 +254,7 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     private fun onAddContactsClickListener() {
         var builder = StringBuilder()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
-                        Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+        if (needContactPermission()) {
             requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS),
                     PERMISSIONS_REQUEST_READ_CONTACT)
             //callback onRequestPermissionsResult
@@ -395,13 +397,16 @@ class ToDoDetailActivity : ToDoAbstractActivity() {
     }
 
     private fun loadContacts() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
-                        Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+        if (needContactPermission()) {
             requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), PERMISSIONS_READ_ALL_CONTACTS)
         } else {
             addExistingContacts()
         }
     }
+
+    private fun needContactPermission() =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(
+                    Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED
 
 
     private fun addExistingContacts() {
