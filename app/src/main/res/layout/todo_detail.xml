@@ -17,7 +17,7 @@
     <EditText
         android:id="@+id/todo_description_action"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="16dp"
         android:hint="@string/todo_detail_description_desc"
         android:text="" />

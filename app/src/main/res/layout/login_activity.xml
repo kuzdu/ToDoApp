@@ -21,7 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/login_email"
-        android:text="s@bht.de"
         android:inputType="textEmailAddress" />
 
     <!--android.support.design.widget.TextInputLayout
@@ -41,7 +40,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/login_password"
-        android:text="000000"
         android:inputType="numberPassword" />
 
     <TextView
