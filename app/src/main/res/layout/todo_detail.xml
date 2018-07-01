@@ -45,14 +45,14 @@
         android:id="@+id/todo_is_done_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/todo_detail_done_desc" />
 
     <CheckBox
         android:id="@+id/todo_is_favourite_action"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/todo_detail_favourite_desc" />
 
     <LinearLayout
@@ -83,41 +83,47 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="4"
+            android:padding="8dp"
             android:gravity="bottom"
             android:orientation="vertical">
 
             <!-- make red! or clear color -->
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/removeTodoButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="end"
                 android:clickable="true"
                 android:focusable="true"
-                app:backgroundTint="?attr/colorControlNormal"
+                android:background="@android:color/transparent"
+                app:elevation="0dp"
+                android:tint="@color/colorRed"
+                app:backgroundTint="@null"
                 app:srcCompat="@android:drawable/ic_menu_delete" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/addContactsButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="end"
                 android:layout_marginTop="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:backgroundTint="@color/colorBlue"
-                android:src="@drawable/ic_action_contact"
-                app:srcCompat="@color/colorBlue" />
+                app:elevation="0dp"
+                android:tint="@color/colorWhite"
+                app:backgroundTint="@color/colorPrimaryDark"
+                app:srcCompat="@drawable/ic_action_contact" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/addOrUpdateToDo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="end"
                 android:layout_marginTop="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:srcCompat="@android:drawable/ic_input_add" />
+                app:elevation="0dp"
+                app:srcCompat="@android:drawable/ic_menu_save" />
         </LinearLayout>
     </LinearLayout>
 

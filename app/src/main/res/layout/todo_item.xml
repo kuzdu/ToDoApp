@@ -38,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="10"
+            android:textAllCaps="true"
             tools:text="Milch einkaufen gehen" />
 
         <ImageButton
@@ -45,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="#ffffff"
+            android:background="@null"
             app:srcCompat="@drawable/ic_star_border_black_24dp" />
     </LinearLayout>
 
@@ -59,7 +60,7 @@
         android:maxLines="2"
         android:paddingBottom="8dp"
         android:paddingEnd="16dp"
-        android:paddingStart="16dp"
+        android:paddingStart="44dp"
         tools:text="Dies ist eine Beschreibung eines toDos. Be Happy with it. Diese Beschreibung geht über mehrere Zeilen, aber nie über mehr als zwei." />
 
     <View
