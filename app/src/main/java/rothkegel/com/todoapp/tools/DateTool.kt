@@ -23,7 +23,7 @@ class DateTool {
         }
 
         fun isExpired(expiry: Long): Boolean {
-            val now = DateTime().getMillis() / 1000
+            val now = (DateTime().getMillis() / 1000) + 7200 //for timezone it's a hack
             return now > expiry
         }
     }
